@@ -1,0 +1,23 @@
+[project]
+name = "django-genfkadmin"
+version = "0.1.0"
+description = """A Django package that replaces content_type and foreign_key
+ fields for GenericForeignKeys in Django Admin Model Forms with a single
+ selector of only the related models so that you don't need to fuss with
+ content types and object ids."""
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "django>=5.2.6",
+]
+
+[tool.black]
+line-length = 80
+
+[tool.uv.sources]
+django-genfkadmin = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "django-genfkadmin==0.1.0",
+]
