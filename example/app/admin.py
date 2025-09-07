@@ -1,9 +1,5 @@
-from functools import partial
-
+from app.models import Cat, Dog, Pet
 from django.contrib import admin
-
-from app.models import Pet, Dog, Cat
-
 from django_genfkadmin.admin import GenericFKAdmin
 from django_genfkadmin.forms import GenericFKModelForm
 

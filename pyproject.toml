@@ -14,10 +14,17 @@ dependencies = [
 [tool.black]
 line-length = 80
 
+[tool.isort]
+profile = "black"
+
 [tool.uv.sources]
 django-genfkadmin = { workspace = true }
 
 [dependency-groups]
 dev = [
+    "autoflake>=2.3.1",
+    "black>=25.1.0",
     "django-genfkadmin==0.1.0",
+    "isort>=6.0.1",
+    "pre-commit>=4.3.0",
 ]

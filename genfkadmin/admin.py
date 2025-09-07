@@ -83,3 +83,8 @@ class GenericFKAdmin(admin.ModelAdmin):
                 "self.form must be subclass of GenericFKModelForm"
             )
         return self.form
+
+
+__all__ = [
+    "GenericFKAdmin",
+]

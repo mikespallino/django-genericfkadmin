@@ -78,3 +78,8 @@ class GenericFKModelForm(forms.ModelForm):
             setattr(instance, related_fields["fk_field"], object_id)
 
         return instance
+
+
+__all__ = [
+    "GenericFKModelForm",
+]

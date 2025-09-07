@@ -45,3 +45,8 @@ class GenericFKField(forms.ChoiceField):
             choices=choices,
             **kwargs,
         )
+
+
+__all__ = [
+    "GenericFKField",
+]
