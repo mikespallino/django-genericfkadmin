@@ -40,11 +40,21 @@ profile = "black"
 [tool.uv.sources]
 django-genfkadmin = { workspace = true }
 
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "tests/",
+]
+addopts = "--create-db --no-migrations"
+
 [dependency-groups]
 dev = [
     "autoflake>=2.3.1",
     "black>=25.1.0",
     "django-genfkadmin==0.1.0",
+    "factory-boy>=3.3.3",
     "isort>=6.0.1",
     "pre-commit>=4.3.0",
+    "pytest>=8.4.2",
+    "pytest-django>=4.11.1",
 ]

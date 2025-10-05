@@ -40,7 +40,7 @@ class GenericFKAdmin(admin.ModelAdmin):
         updated_fields_with_generic_keys = []
 
         if self.fields:
-            # if we have fields already, make sure the content type and foreign
+            # if we have fields already make sure the content type and foreign
             # key fields aren't present and add our generic fields
             updated_fields_with_generic_keys = copy.deepcopy(self.fields)
             for field, generic_related_fields in self.generic_fields.items():
@@ -55,7 +55,7 @@ class GenericFKAdmin(admin.ModelAdmin):
                 except ValueError:
                     pass
         else:
-            # if we don't have fields,generate them ourselves, including the
+            # if we don't have fields generate them ourselves, including the
             # dynamic generic foreign key fields
             for field in self.model._meta.fields:
                 if (
