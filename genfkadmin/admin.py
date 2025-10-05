@@ -1,4 +1,5 @@
 import copy
+from functools import partial
 
 from django.contrib import admin
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -78,7 +79,17 @@ class GenericFKAdmin(admin.ModelAdmin):
             raise NotImplementedError(
                 "Must define self.form that inherits from "
             )
-        if not issubclass(self.form, GenericFKModelForm):
+
+        if not (
+            isinstance(self.form, partial)
+            or issubclass(self.form, GenericFKModelForm)
+        ):
+            raise NotImplementedError(
+                "self.form must be subclass of GenericFKModelForm"
+            )
+        elif isinstance(self.form, partial) and not issubclass(
+            self.form.func, GenericFKModelForm
+        ):
             raise NotImplementedError(
                 "self.form must be subclass of GenericFKModelForm"
             )
