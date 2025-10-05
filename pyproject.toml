@@ -1,10 +1,7 @@
 [project]
 name = "django-genfkadmin"
 version = "0.1.0"
-description = """A Django package that replaces content_type and foreign_key
- fields for GenericForeignKeys in Django Admin Model Forms with a single
- selector of only the related models so that you don't need to fuss with
- content types and object ids."""
+description = "No frills GenericForeignKeys for your Django Admin"
 readme = "README.md"
 authors = [
   {name = "Michael Spallino", email = "mikehspallino@gmail.com"},
@@ -12,24 +9,26 @@ authors = [
 maintainers = [
   {name = "Michael Spallino", email = "mikehspallino@gmail.com"},
 ]
+license-files = ["LICENSE"]
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: Developers",
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: Libraries :: Application Frameworks",
   "License :: OSI Approved :: MIT License",
-  "Framework :: Django :: 5.2",
+  "Framework :: Django :: 5",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Operating System :: OS Independent"
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "django>=5.2.6",
+    "django>=5",
 ]
+
+[project.urls]
+Homepage = "https://github.com/mikespallino/django-genericfkadmin"
+Issues = "https://github.com/mikespallino/django-genericfkadmin/issues"
 
 [tool.black]
 line-length = 80
@@ -51,10 +50,10 @@ addopts = "--create-db --no-migrations"
 dev = [
     "autoflake>=2.3.1",
     "black>=25.1.0",
-    "django-genfkadmin==0.1.0",
     "factory-boy>=3.3.3",
     "isort>=6.0.1",
     "pre-commit>=4.3.0",
     "pytest>=8.4.2",
     "pytest-django>=4.11.1",
+    "twine>=6.2.0",
 ]

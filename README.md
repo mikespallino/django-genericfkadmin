@@ -11,7 +11,7 @@ with only the models related through `GenericRelation` fields.
 
 ### Usage
 
-Using this package is pretty simple. 
+Using this package is pretty simple.
 
 1. Create a subclass of `GenericFKModelForm` for your model.
 2. Create a subclass of `GenericFKAdmin` for your model.
@@ -20,6 +20,10 @@ Using this package is pretty simple.
 
 e.g. in your `admin.py`
 ```python
+from genfkadmin.admin import GenericFKAdmin
+from genfkadmin.forms import GenericFKModelForm
+
+
 class PetAdminForm(GenericFKModelForm):
 
     class Meta:
@@ -32,7 +36,7 @@ class PetAdmin(GenericFKAdmin):
     form = PetAdminForm
 ```
 
-
+![example](docs/screenshots/example_admin.png)
 
 A complete example django app exists in this repository at [here](/example)
 

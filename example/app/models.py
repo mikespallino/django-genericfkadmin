@@ -37,3 +37,10 @@ class Cat(models.Model):
 
     def __str__(self):
         return f"Cat - {self.name}"
+
+
+class Elephant(models.Model):
+    name = models.CharField()
+
+    def __str__(self):
+        return f"Elephant - {self.name}"

@@ -1,7 +1,8 @@
-from app.models import Cat, Dog, Pet
+from app.models import Cat, Dog, Elephant, Pet
 from django.contrib import admin
-from django_genfkadmin.admin import GenericFKAdmin
-from django_genfkadmin.forms import GenericFKModelForm
+
+from genfkadmin.admin import GenericFKAdmin
+from genfkadmin.forms import GenericFKModelForm
 
 
 class PetAdminForm(GenericFKModelForm):
@@ -23,4 +24,9 @@ class DogAdmin(admin.ModelAdmin):
 
 @admin.register(Cat)
 class CatAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Elephant)
+class ElephantAdmin(admin.ModelAdmin):
     pass
