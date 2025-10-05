@@ -9,6 +9,14 @@ with only the models related through `GenericRelation` fields.
 
 ### Install
 
+```shell
+pip install django-genfkadmin
+````
+
+```shell
+uv add django-genfkadmin
+```
+
 ### Usage
 
 Using this package is pretty simple.
