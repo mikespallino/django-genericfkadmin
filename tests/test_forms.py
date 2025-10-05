@@ -66,3 +66,27 @@ def test_form_save_updates_content_type_and_fk_fields(pets):
         Cat
     )
     assert updated_instance.content_object == cat
+
+
+@pytest.mark.django_db
+def test_form_filter(pets):
+    instance = pets["pets"][0]
+    form = PetAdminForm(
+        instance=instance,
+        filter_callback=lambda queryset: queryset.filter(
+            tags__owner=instance.owner
+        ),
+    )
+
+    pets = [p.content_object for p in Pet.objects.filter(owner=instance.owner)]
+    expected_choices = [
+        FIELD_ID_FORMAT.format(
+            app_label="tests",
+            model_name=pet.__class__.__name__.lower(),
+            pk=pet.pk,
+        )
+        for pet in pets
+    ]
+    actual_choices = [v for v, dv in form.fields["content_object_gfk"].choices]
+
+    assert expected_choices == actual_choices

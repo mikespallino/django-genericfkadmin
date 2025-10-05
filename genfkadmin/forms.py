@@ -13,8 +13,7 @@ class GenericFKModelForm(forms.ModelForm):
     the models with GenericRelations.
     """
 
-    def __init__(self, *args, **kwargs):
-
+    def __init__(self, *args, filter_callback=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.generic_fields = {}
 
@@ -38,7 +37,9 @@ class GenericFKModelForm(forms.ModelForm):
                 self.fields.pop(field.fk_field, None)
                 self.fields[generic_field_name] = GenericFKField(
                     field.model,
+                    filter_callback=filter_callback,
                     label=field.name,
+                    help_text=field.help_text,
                 )
 
     def get_initial_for_field(self, field, field_name):
