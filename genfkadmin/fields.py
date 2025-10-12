@@ -10,7 +10,7 @@ class GenericFKField(forms.ChoiceField):
     models for the GenericForeignKey Relations.
     """
 
-    def __init__(self, model, *args, **kwargs):
+    def __init__(self, model, *args, filter_callback=None, **kwargs):
         """
         Given a model and an optional, initialize the set of
         choices that should be available for this field.
@@ -26,6 +26,9 @@ class GenericFKField(forms.ChoiceField):
         for relation in model._meta._relation_tree:
             if isinstance(relation, GenericRelation):
                 queryset = relation.model.objects.all()
+                if filter_callback and callable(filter_callback):
+                    queryset = filter_callback(queryset)
+
                 choices.extend(
                     [
                         (
