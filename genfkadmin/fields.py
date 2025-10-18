@@ -1,7 +1,12 @@
+import logging
+from traceback import format_exc
+
 from django import forms
 from django.contrib.contenttypes.fields import GenericRelation
 
 from genfkadmin import FIELD_ID_FORMAT
+
+logger = logging.getLogger(__name__)
 
 
 class GenericFKField(forms.ChoiceField):
@@ -27,7 +32,12 @@ class GenericFKField(forms.ChoiceField):
             if isinstance(relation, GenericRelation):
                 queryset = relation.model.objects.all()
                 if filter_callback and callable(filter_callback):
-                    queryset = filter_callback(queryset)
+                    try:
+                        queryset = filter_callback(queryset)
+                    except Exception:
+                        logging.warning(
+                            f"Unable to filter queryset with callback: {format_exc()}"
+                        )
 
                 choices.extend(
                     [
