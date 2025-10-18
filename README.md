@@ -52,17 +52,15 @@ the parent instance of your model with `GenericForeignKey`) you can pass a
 `partial` with a keyword argument of `filter_callback` as follows.
 
 ```python
-@admin.register(Pet)
-class PetAdmin(GenericFKAdmin):
-    form = PetAdminForm
+@admin.register(MarketingMaterial)
+class MarketingMaterialAdmin(GenericFKAdmin):
+    form = MarketingMaterialAdminForm
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         if obj:
             self.form = partial(
-                PetAdminForm,
-                filter_callback=lambda queryset: queryset.filter(
-                    tags__owner=obj.owner
-                ),
+                MarketingMaterialAdminForm,
+                filter_callback=lambda queryset: queryset.filter(customer=obj.customer),
             )
         return super().get_form(request, obj=obj, change=change, **kwargs)
 ```
