@@ -43,6 +43,12 @@ line-length = 80
 [tool.isort]
 profile = "black"
 
+[tool.tox]
+skip_missing_interpreters = true
+requires = [
+  "tox>=4",
+]
+
 [tool.uv.sources]
 django-genfkadmin = { workspace = true }
 
