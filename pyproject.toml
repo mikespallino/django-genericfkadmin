@@ -16,14 +16,20 @@ classifiers = [
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: Libraries :: Application Frameworks",
   "License :: OSI Approved :: MIT License",
+  "Framework :: Django :: 4.2",
   "Framework :: Django :: 5",
+  "Framework :: Django :: 5.1",
+  "Framework :: Django :: 5.2",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Operating System :: OS Independent"
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.10,<3.14"
 dependencies = [
-    "django>=5",
+    "django>=4.2",
 ]
 
 [project.urls]
@@ -35,6 +41,12 @@ line-length = 80
 
 [tool.isort]
 profile = "black"
+
+[tool.tox]
+skip_missing_interpreters = true
+requires = [
+  "tox>=4",
+]
 
 [tool.uv.sources]
 django-genfkadmin = { workspace = true }
