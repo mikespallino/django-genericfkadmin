@@ -24,7 +24,7 @@ class Pet(models.Model):
 
 
 class Dog(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=256)
     tags = GenericRelation(Pet)
 
     def __str__(self):
@@ -32,7 +32,7 @@ class Dog(models.Model):
 
 
 class Cat(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=256)
     tags = GenericRelation(Pet)
 
     def __str__(self):
@@ -40,7 +40,7 @@ class Cat(models.Model):
 
 
 class Elephant(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=256)
 
     def __str__(self):
         return f"Elephant - {self.name}"

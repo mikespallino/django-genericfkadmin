@@ -1,6 +1,6 @@
 [project]
 name = "django-genfkadmin"
-version = "0.1.1"
+version = "0.1.2"
 description = "No frills GenericForeignKeys for your Django Admin"
 readme = "README.md"
 authors = [
@@ -25,10 +25,9 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
-  "Programming Language :: Python :: 3.14",
   "Operating System :: OS Independent"
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.14"
 dependencies = [
     "django>=4.2",
 ]

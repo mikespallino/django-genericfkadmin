@@ -39,7 +39,9 @@ class GenericFKModelForm(forms.ModelForm):
                     field.model,
                     filter_callback=filter_callback,
                     label=field.name,
-                    help_text=field.help_text,
+                    help_text=(
+                        field.help_text if hasattr(field, "help_text") else ""
+                    ),  # drop when drop django 4.2
                 )
 
     def get_initial_for_field(self, field, field_name):

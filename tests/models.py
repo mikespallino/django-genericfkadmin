@@ -14,7 +14,10 @@ class Pet(models.Model):
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveBigIntegerField()
-    content_object = GenericForeignKey("content_type", "object_id")
+    content_object = GenericForeignKey(
+        "content_type",
+        "object_id",
+    )
 
     def __str__(self):
         return f"{self.owner} owns {self.content_object}"
@@ -27,7 +30,7 @@ class Pet(models.Model):
 
 
 class Dog(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=256)
     tags = GenericRelation(Pet)
 
     class Meta:
@@ -38,7 +41,7 @@ class Dog(models.Model):
 
 
 class Cat(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=256)
     tags = GenericRelation(Pet)
 
     class Meta:
@@ -49,4 +52,4 @@ class Cat(models.Model):
 
 
 class Elephant(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=256)
