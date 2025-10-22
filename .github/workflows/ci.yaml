@@ -36,7 +36,7 @@ jobs:
         run: uv tool install tox --with tox-uv
 
       - name: Run tests
-        run: uv tool run tox -e py$(echo ${{ matrix.python-version }} | tr -d . | cut -f 1 -d '-')
+        run: uv tool run tox -f py$(echo ${{ matrix.python-version }} | tr -d . | cut -f 1 -d '-')
 
   quality:
     name: run quality checks
