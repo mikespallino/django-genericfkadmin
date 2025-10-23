@@ -44,7 +44,7 @@ class PetAdmin(GenericFKAdmin):
     form = PetAdminForm
 ```
 
-![example](docs/screenshots/example_admin.png)
+![example](docs/screenshots/example_base_admin.png)
 
 #### Providing a `filter_callback`
 If you want to further filter the queryset (perhaps by something related to
@@ -64,6 +64,8 @@ class MarketingMaterialAdmin(GenericFKAdmin):
             )
         return super().get_form(request, obj=obj, change=change, **kwargs)
 ```
+
+![example](docs/screenshots/example_filter_admin.png)
 
 A complete example django app exists in this repository at [here](/example)
 

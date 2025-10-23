@@ -37,6 +37,11 @@ class MarketingMaterialAdmin(GenericFKAdmin):
                     customer=obj.customer
                 ),
             )
+        else:
+            # this is important, otherwise, 1. add -> 2. change -> 3. add
+            # will use the filter on 2. in 3.
+            self.form = MarketingMaterialAdminForm
+
         return super().get_form(request, obj=obj, change=change, **kwargs)
 
 

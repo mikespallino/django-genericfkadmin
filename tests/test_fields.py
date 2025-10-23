@@ -29,8 +29,9 @@ def test_field_choices_value_format(pets):
         )
 
     field = GenericFKField(Pet)
-    for value, display in field.choices:
-        assert value in expected_values
+    for opt_group, choices in field.choices:
+        for value, display_value in choices:
+            assert value in expected_values
 
 
 @pytest.mark.django_db

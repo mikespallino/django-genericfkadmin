@@ -1,7 +1,16 @@
 import factory
 from django.contrib.auth import get_user_model
 
-from tests.models import Cat, Dog, Elephant, Pet
+from tests.models import (
+    Cat,
+    Customer,
+    Dog,
+    Elephant,
+    EmailDeliveryMechanism,
+    MarketingMaterial,
+    Pet,
+    SMSDeliveryMechanism,
+)
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -33,3 +42,32 @@ class ElephantFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Elephant
+
+
+class CustomerFactory(factory.django.DjangoModelFactory):
+    name = factory.faker.Faker("name")
+
+    class Meta:
+        model = Customer
+
+
+class MarketingMaterialFactory(factory.django.DjangoModelFactory):
+    title = factory.faker.Faker("text")
+    body = factory.faker.Faker("text")
+
+    class Meta:
+        model = MarketingMaterial
+
+
+class EmailDeliveryMechanismFactory(factory.django.DjangoModelFactory):
+    value = factory.faker.Faker("email")
+
+    class Meta:
+        model = EmailDeliveryMechanism
+
+
+class SMSDeliveryMechanismFactory(factory.django.DjangoModelFactory):
+    value = factory.faker.Faker("phone_number")
+
+    class Meta:
+        model = SMSDeliveryMechanism
