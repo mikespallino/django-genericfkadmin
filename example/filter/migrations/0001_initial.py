@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("value", models.CharField()),
+                ("value", models.CharField(max_length=256)),
                 (
                     "customer",
                     models.ForeignKey(
@@ -123,7 +123,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("value", models.CharField()),
+                ("value", models.CharField(max_length=256)),
                 (
                     "customer",
                     models.ForeignKey(

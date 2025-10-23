@@ -34,7 +34,7 @@ class MarketingMaterial(models.Model):
 
 class DeliveryMechanism(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    value = models.CharField()
+    value = models.CharField(max_length=256)
 
     def __str__(self):
         return f"{self.value} for {self.customer.name}"
