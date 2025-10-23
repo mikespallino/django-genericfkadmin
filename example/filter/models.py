@@ -14,7 +14,7 @@ class Customer(models.Model):
 
 
 class MarketingMaterial(models.Model):
-    title = models.CharField()
+    title = models.CharField(max_length=256)
     body = models.TextField()
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
@@ -28,31 +28,33 @@ class MarketingMaterial(models.Model):
             models.Index(fields=["content_type", "object_id"]),
         ]
 
+    def __str__(self):
+        return f"Marketing Material - {self.title} for {self.customer.name}"
 
-class EmailDeliveryMechanism(models.Model):
+
+class DeliveryMechanism(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-
-    value = models.CharField()
-    material = GenericRelation(MarketingMaterial)
+    value = models.CharField(max_length=256)
 
     def __str__(self):
-        return f"EmailDeliveryMechanism - {self.value} for {self.customer.name}"
+        return f"{self.value} for {self.customer.name}"
+
+    class Meta:
+        abstract = True
 
 
-class SMSDeliveryMechanism(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-
-    value = models.CharField()
+class EmailDeliveryMechanism(DeliveryMechanism):
     material = GenericRelation(MarketingMaterial)
 
-    def __str__(self):
-        return f"SMSDeliveryMechanism - {self.value} for {self.customer.name}"
+
+class SMSDeliveryMechanism(DeliveryMechanism):
+    material = GenericRelation(MarketingMaterial)
 
 
 class PromotionalMaterial(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
-    title = models.CharField()
+    title = models.CharField(max_length=256)
     body = models.TextField()
     material = models.ForeignKey(MarketingMaterial, on_delete=models.CASCADE)
 

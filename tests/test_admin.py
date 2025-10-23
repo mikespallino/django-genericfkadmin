@@ -3,11 +3,14 @@ from unittest.mock import MagicMock
 
 import pytest
 from django import forms
+from django.contrib import admin
+from django.urls import reverse
 
 from genfkadmin import FIELD_ID_FORMAT
 from genfkadmin.admin import GenericFKAdmin
 from genfkadmin.forms import GenericFKModelForm
-from tests.models import Pet
+from tests.factories import DogFactory, PetFactory
+from tests.models import MarketingMaterial, Pet
 
 
 class BadAdminConfiguration(GenericFKAdmin):
@@ -53,6 +56,7 @@ class GoodForm(GenericFKModelForm):
         fields = "__all__"
 
 
+@admin.register(Pet)
 class GoodAdminConfiguration(GenericFKAdmin):
     form = GoodForm
 
@@ -93,35 +97,141 @@ def test_admin_removes_generic_related_fields_when_fields_defined():
     assert admin.generic_related_fields & set(fields) == set()
 
 
-class GoodAdminPartialSubclassConfiguration(GenericFKAdmin):
-    form = GoodForm
+@pytest.mark.django_db
+def test_admin_renders_changelist(client, admin_user):
+    client.force_login(admin_user)
+
+    dog1 = DogFactory()
+    pet1 = PetFactory(owner=admin_user, content_object=dog1)
+
+    url = reverse("admin:tests_pet_change", kwargs={"object_id": pet1.pk})
+
+    response = client.get(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_admin_renders_add(client, admin_user):
+    client.force_login(admin_user)
+
+    url = reverse("admin:tests_pet_add")
+
+    response = client.get(url)
+    assert response.status_code == 200
+
+
+class MarketingMaterialAdminForm(GenericFKModelForm):
+
+    class Meta:
+        model = MarketingMaterial
+        fields = "__all__"
+
+
+@admin.register(MarketingMaterial)
+class MarketingMaterialAdmin(GenericFKAdmin):
+    form = MarketingMaterialAdminForm
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         if obj:
             self.form = partial(
-                GoodForm,
+                MarketingMaterialAdminForm,
                 filter_callback=lambda queryset: queryset.filter(
-                    tags__owner=obj.owner
+                    customer=obj.customer
                 ),
             )
+        else:
+            # this is important, otherwise, 1. add -> 2. change -> 3. add
+            # will use the filter on 2. in 3.
+            self.form = MarketingMaterialAdminForm
+
         return super().get_form(request, obj=obj, change=change, **kwargs)
 
 
 @pytest.mark.django_db
-def test_admin_partial_subclass(pets):
+def test_admin_partial_subclass(marketing_materials):
     from django.contrib.admin import site
 
-    instance = pets["pets"][0]
-    pets = [p.content_object for p in Pet.objects.filter(owner=instance.owner)]
-    admin = GoodAdminPartialSubclassConfiguration(Pet, site)
-    form = admin.get_form(MagicMock(), obj=instance)()
+    admin = MarketingMaterialAdmin(MarketingMaterial, site)
+    form = admin.get_form(
+        MagicMock(),
+        obj=marketing_materials["marketing_materials"]["m1"]["instance"],
+    )()
     expected_choices = [
         FIELD_ID_FORMAT.format(
             app_label="tests",
-            model_name=pet.__class__.__name__.lower(),
-            pk=pet.pk,
+            model_name=mechanism.__class__.__name__.lower(),
+            pk=mechanism.pk,
         )
-        for pet in pets
+        for mechanism in marketing_materials["marketing_materials"]["m1"][
+            "options"
+        ]
     ]
-    actual_choices = [v for v, dv in form.fields["content_object_gfk"].choices]
+    actual_choices = [
+        value
+        for optgroup, choices in form.fields["content_object_gfk"].choices
+        for value, display_value in choices
+    ]
     assert expected_choices == actual_choices
+
+
+@pytest.mark.django_db
+def test_admin_filtered_change_add_resets_filter(
+    marketing_materials, client, admin_user
+):
+    client.force_login(admin_user)
+
+    instance = marketing_materials["marketing_materials"]["m1"]["instance"]
+    all_choices = [
+        FIELD_ID_FORMAT.format(
+            app_label="tests",
+            model_name=mechanism.__class__.__name__.lower(),
+            pk=mechanism.pk,
+        )
+        for mechanism in marketing_materials["marketing_materials"]["m1"][
+            "options"
+        ]
+        + marketing_materials["marketing_materials"]["m2"]["options"]
+    ]
+    instance_choices = [
+        FIELD_ID_FORMAT.format(
+            app_label="tests",
+            model_name=mechanism.__class__.__name__.lower(),
+            pk=mechanism.pk,
+        )
+        for mechanism in marketing_materials["marketing_materials"]["m1"][
+            "options"
+        ]
+    ]
+    other_choices = [
+        FIELD_ID_FORMAT.format(
+            app_label="tests",
+            model_name=mechanism.__class__.__name__.lower(),
+            pk=mechanism.pk,
+        )
+        for mechanism in marketing_materials["marketing_materials"]["m2"][
+            "options"
+        ]
+    ]
+
+    url = reverse(
+        "admin:tests_marketingmaterial_change",
+        kwargs={"object_id": instance.pk},
+    )
+    response = client.get(url)
+    assert response.status_code == 200
+
+    for choice in instance_choices:
+        assert (
+            choice in response.content.decode()
+        ), f"instance choice missing {choice}"
+    for choice in other_choices:
+        assert (
+            choice not in response.content.decode()
+        ), f"other choice included {choice}"
+
+    url = reverse("admin:tests_marketingmaterial_add")
+    response = client.get(url)
+    assert response.status_code == 200
+
+    for choice in all_choices:
+        assert choice in response.content.decode(), f"choice missing {choice}"

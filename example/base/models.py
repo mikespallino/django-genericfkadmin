@@ -23,24 +23,23 @@ class Pet(models.Model):
         ]
 
 
-class Dog(models.Model):
+class Animal(models.Model):
     name = models.CharField(max_length=256)
+
+    def __str__(self):
+        return f"{self.name}"
+
+    class Meta:
+        abstract = True
+
+
+class Dog(Animal):
     tags = GenericRelation(Pet)
 
-    def __str__(self):
-        return f"Dog - {self.name}"
 
-
-class Cat(models.Model):
-    name = models.CharField(max_length=256)
+class Cat(Animal):
     tags = GenericRelation(Pet)
 
-    def __str__(self):
-        return f"Cat - {self.name}"
 
-
-class Elephant(models.Model):
-    name = models.CharField(max_length=256)
-
-    def __str__(self):
-        return f"Elephant - {self.name}"
+class Elephant(Animal):
+    pass

@@ -78,3 +78,46 @@ def pets():
         "cats": [cat1, cat2],
         "pets": [pet1, pet2, pet3, pet4],
     }
+
+
+@pytest.fixture
+def admin_user():
+    from tests.factories import UserFactory
+
+    return UserFactory(is_superuser=True, is_staff=True)
+
+
+@pytest.fixture
+def marketing_materials():
+    from tests.factories import (
+        CustomerFactory,
+        EmailDeliveryMechanismFactory,
+        MarketingMaterialFactory,
+        SMSDeliveryMechanismFactory,
+    )
+
+    c1 = CustomerFactory()
+    c2 = CustomerFactory()
+
+    e1 = EmailDeliveryMechanismFactory(customer=c1)
+    e2 = EmailDeliveryMechanismFactory(customer=c1)
+    sms1 = SMSDeliveryMechanismFactory(customer=c1)
+    sms2 = SMSDeliveryMechanismFactory(customer=c1)
+
+    e3 = EmailDeliveryMechanismFactory(customer=c2)
+    e4 = EmailDeliveryMechanismFactory(customer=c2)
+    sms3 = SMSDeliveryMechanismFactory(customer=c2)
+    sms4 = SMSDeliveryMechanismFactory(customer=c2)
+
+    m1 = MarketingMaterialFactory(customer=c1, content_object=sms1)
+    m2 = MarketingMaterialFactory(customer=c2, content_object=e3)
+
+    return {
+        "customer": {"c1": c1, "c2": c2},
+        "email": {"e1": e1, "e2": e2, "e3": e3, "e4": e4},
+        "sms": {"sms1": sms1, "sms2": sms2, "sms3": sms3, "sms4": sms4},
+        "marketing_materials": {
+            "m1": {"instance": m1, "options": [e1, e2, sms1, sms2]},
+            "m2": {"instance": m2, "options": [e3, e4, sms3, sms4]},
+        },
+    }

@@ -39,18 +39,25 @@ class GenericFKField(forms.ChoiceField):
                             f"Unable to filter queryset with callback: {format_exc()}"
                         )
 
-                choices.extend(
-                    [
-                        (
-                            FIELD_ID_FORMAT.format(
-                                app_label=i._meta.app_label,
-                                model_name=i._meta.model_name,
-                                pk=i.pk,
-                            ),
-                            str(i),
-                        )
-                        for i in queryset
-                    ]
+                choices_for_model = [
+                    (
+                        FIELD_ID_FORMAT.format(
+                            app_label=i._meta.app_label,
+                            model_name=i._meta.model_name,
+                            pk=i.pk,
+                        ),
+                        str(i),
+                    )
+                    for i in queryset
+                ]
+
+                app_label = relation.model._meta.app_label
+                app_label = app_label[0].upper() + app_label[1:]
+                choices.append(
+                    (
+                        f"{app_label} | {relation.model.__name__}",
+                        choices_for_model,
+                    )
                 )
 
         super().__init__(

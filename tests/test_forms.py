@@ -87,6 +87,10 @@ def test_form_filter(pets):
         )
         for pet in pets
     ]
-    actual_choices = [v for v, dv in form.fields["content_object_gfk"].choices]
+    actual_choices = [
+        value
+        for optgroup, choices in form.fields["content_object_gfk"].choices
+        for value, display_value in choices
+    ]
 
     assert expected_choices == actual_choices
