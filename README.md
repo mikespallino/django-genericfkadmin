@@ -62,9 +62,14 @@ class MarketingMaterialAdmin(GenericFKAdmin):
                 MarketingMaterialAdminForm,
                 filter_callback=lambda queryset: queryset.filter(customer=obj.customer),
             )
+        else:
+            # this is important, otherwise, 1. add -> 2. change -> 3. add
+            # will use the filter on 2. in 3.
+            self.form = MarketingMaterialAdmin
         return super().get_form(request, obj=obj, change=change, **kwargs)
 ```
 
+Now when loading an existing `MarketingMaterial`, the `content_object` options are filtered by the chosen `Customer`
 ![example](docs/screenshots/example_filter_admin.png)
 
 A complete example django app exists in this repository at [here](/example)
