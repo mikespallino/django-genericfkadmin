@@ -63,7 +63,7 @@ class Customer(models.Model):
 
 
 class MarketingMaterial(models.Model):
-    title = models.CharField()
+    title = models.CharField(max_length=256)
     body = models.TextField()
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)

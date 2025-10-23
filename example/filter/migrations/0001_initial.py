@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("title", models.CharField()),
+                ("title", models.CharField(max_length=256)),
                 ("body", models.TextField()),
                 ("object_id", models.PositiveBigIntegerField()),
                 (
@@ -93,7 +93,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("title", models.CharField()),
+                ("title", models.CharField(max_length=256)),
                 ("body", models.TextField()),
                 (
                     "customer",

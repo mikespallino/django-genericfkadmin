@@ -14,7 +14,7 @@ class Customer(models.Model):
 
 
 class MarketingMaterial(models.Model):
-    title = models.CharField()
+    title = models.CharField(max_length=256)
     body = models.TextField()
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
@@ -54,7 +54,7 @@ class SMSDeliveryMechanism(DeliveryMechanism):
 class PromotionalMaterial(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
-    title = models.CharField()
+    title = models.CharField(max_length=256)
     body = models.TextField()
     material = models.ForeignKey(MarketingMaterial, on_delete=models.CASCADE)
 
