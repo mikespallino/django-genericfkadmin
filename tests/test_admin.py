@@ -168,7 +168,7 @@ def test_admin_partial_subclass(marketing_materials):
     ]
     actual_choices = [
         value
-        for optgroup, choices in form.fields["content_object_gfk"].choices
+        for optgroup, choices in form.fields["delivery_method_gfk"].choices
         for value, display_value in choices
     ]
     assert expected_choices == actual_choices
