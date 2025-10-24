@@ -109,8 +109,8 @@ def marketing_materials():
     sms3 = SMSDeliveryMechanismFactory(customer=c2)
     sms4 = SMSDeliveryMechanismFactory(customer=c2)
 
-    m1 = MarketingMaterialFactory(customer=c1, content_object=sms1)
-    m2 = MarketingMaterialFactory(customer=c2, content_object=e3)
+    m1 = MarketingMaterialFactory(customer=c1, delivery_method=sms1)
+    m2 = MarketingMaterialFactory(customer=c2, delivery_method=e3)
 
     return {
         "customer": {"c1": c1, "c2": c2},

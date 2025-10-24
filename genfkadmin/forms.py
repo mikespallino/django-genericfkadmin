@@ -30,6 +30,7 @@ class GenericFKModelForm(forms.ModelForm):
                     field_name=field.name
                 )
                 self.generic_fields[generic_field_name] = {
+                    "original_field_name": field.name,
                     "ct_field": field.ct_field,
                     "fk_field": field.fk_field,
                 }
@@ -48,7 +49,10 @@ class GenericFKModelForm(forms.ModelForm):
         # generate the initial value for any of the generic fields so that
         # the correct choice is auto selected
         if field_name in self.generic_fields:
-            target_instance = self.instance.content_object
+            target_instance = getattr(
+                self.instance,
+                self.generic_fields[field_name]["original_field_name"],
+            )
             if target_instance:
                 return FIELD_ID_FORMAT.format(
                     app_label=target_instance._meta.app_label,
