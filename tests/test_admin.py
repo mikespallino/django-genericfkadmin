@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 from django import forms
 from django.contrib import admin
+from django.core import checks
 from django.urls import reverse
 
 from genfkadmin import FIELD_ID_FORMAT
@@ -20,9 +21,18 @@ class BadAdminConfiguration(GenericFKAdmin):
 def test_admin_must_define_form():
     from django.contrib.admin import site
 
-    with pytest.raises(NotImplementedError):
-        admin = BadAdminConfiguration(Pet, site)
-        admin.get_form()
+    admin = BadAdminConfiguration(Pet, site)
+    errors = admin.check()
+    assert len(errors) >= 1
+    assert (
+        checks.Error(
+            "Admin form not overridden",
+            hint="Add a form attribute to the admin class with a form that subclasses GenericFKModelForm",
+            obj=admin,
+            id="genfkadmin.E001",
+        )
+        in errors
+    )
 
 
 class BadForm(forms.ModelForm):
@@ -34,19 +44,37 @@ class BadForm(forms.ModelForm):
 def test_admin_form_must_subclass():
     from django.contrib.admin import site
 
-    with pytest.raises(NotImplementedError):
-        BadAdminConfiguration.form = BadForm
-        admin = BadAdminConfiguration(Pet, site)
-        admin.get_form()
+    BadAdminConfiguration.form = BadForm
+    admin = BadAdminConfiguration(Pet, site)
+    errors = admin.check()
+    assert len(errors) >= 1
+    assert (
+        checks.Error(
+            "Admin form is not the correct type",
+            hint="self.form must be subclass of GenericFKModelForm",
+            obj=admin,
+            id="genfkadmin.E002",
+        )
+        in errors
+    )
 
 
 def test_admin_form_partial_func_must_subclass():
     from django.contrib.admin import site
 
-    with pytest.raises(NotImplementedError):
-        BadAdminConfiguration.form = partial(BadForm)
-        admin = BadAdminConfiguration(Pet, site)
-        admin.get_form()
+    BadAdminConfiguration.form = partial(BadForm)
+    admin = BadAdminConfiguration(Pet, site)
+    errors = admin.check()
+    assert len(errors) >= 1
+    assert (
+        checks.Error(
+            "Admin form partial is not the correct type",
+            hint="self.form.func must be subclass of GenericFKModelForm",
+            obj=admin,
+            id="genfkadmin.E003",
+        )
+        in errors
+    )
 
 
 class GoodForm(GenericFKModelForm):
@@ -59,6 +87,15 @@ class GoodForm(GenericFKModelForm):
 @admin.register(Pet)
 class GoodAdminConfiguration(GenericFKAdmin):
     form = GoodForm
+
+
+def test_good_admin_check_returns_no_errors():
+    from django.contrib.admin import site
+
+    admin = GoodAdminConfiguration(Pet, site)
+    errors = admin.check()
+
+    assert not errors
 
 
 def test_admin_stores_generic_fields():
