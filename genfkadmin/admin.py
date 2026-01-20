@@ -3,6 +3,7 @@ from functools import partial
 
 from django.contrib import admin
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core import checks
 
 from genfkadmin import GENERIC_FIELD_NAME
 from genfkadmin.forms import GenericFKModelForm
@@ -70,30 +71,47 @@ class GenericFKAdmin(admin.ModelAdmin):
 
     def get_form(self, *args, **kwargs):
         """
-        Overrides get_form to return our subclassed GenericFKModelForm.
+        Overrides get_form to return our subclassed GenericFKModelForm. Bypass
+        any auto form generation by simply returning the form attribute.
         """
-        # bypass any auto form generation by simply returning the form
-        # attribute and do some gut checks to make sure we have an appropriate
-        # form to use
-        if not self.form:
-            raise NotImplementedError(
-                "Must define self.form that inherits from "
-            )
-
-        if not (
-            isinstance(self.form, partial)
-            or issubclass(self.form, GenericFKModelForm)
-        ):
-            raise NotImplementedError(
-                "self.form must be subclass of GenericFKModelForm"
-            )
-        elif isinstance(self.form, partial) and not issubclass(
-            self.form.func, GenericFKModelForm
-        ):
-            raise NotImplementedError(
-                "self.form must be subclass of GenericFKModelForm"
-            )
         return self.form
+
+    def check(self, **kwargs):
+        errors = super().check(**kwargs)
+        if not self.form:
+            errors.append(
+                checks.Error(
+                    "Admin form not overridden",
+                    hint="Add a form attribute to the admin class with a form that subclasses GenericFKModelForm",
+                    obj=self,
+                    id="genfkadmin.E001",
+                )
+            )
+        else:
+            if not (
+                isinstance(self.form, partial)
+                or issubclass(self.form, GenericFKModelForm)
+            ):
+                errors.append(
+                    checks.Error(
+                        "Admin form is not the correct type",
+                        hint="self.form must be subclass of GenericFKModelForm",
+                        obj=self,
+                        id="genfkadmin.E002",
+                    )
+                )
+            elif isinstance(self.form, partial) and not issubclass(
+                self.form.func, GenericFKModelForm
+            ):
+                errors.append(
+                    checks.Error(
+                        "Admin form partial is not the correct type",
+                        hint="self.form.func must be subclass of GenericFKModelForm",
+                        obj=self,
+                        id="genfkadmin.E003",
+                    )
+                )
+        return errors
 
 
 __all__ = [
