@@ -73,7 +73,3 @@ Now when loading an existing `MarketingMaterial`, the `content_object` options a
 ![example](docs/screenshots/example_filter_admin.png)
 
 A complete example django app exists in this repository at [here](/example)
-
-
-## Roadmap
-1. Stacked and Tabular Inline support.
