@@ -40,33 +40,41 @@ class GenericFKAdmin(admin.ModelAdmin):
         the GenericForeignKey and replaces them with the dynamic fields.
         """
         if self.fields:
-            return self.__handle_fields()
-        elif self.fieldsets:
-            return self.__handle_fieldsets()
+            return self.__handle_fields(copy.deepcopy(self.fields))
         else:
             return self.__handle_auto_gen()
 
-    def __handle_fields(self):
-        # if we have fields already make sure the content type and foreign
-        # key fields aren't present and add our generic fields
-        updated_fields_with_generic_keys = copy.deepcopy(self.fields)
-        for field, generic_related_fields in self.generic_fields.items():
-            try:
-                updated_fields_with_generic_keys.remove(
-                    generic_related_fields["ct_field"]
+    def get_fieldsets(self, *args, **kwargs):
+        """
+        Overrides get_fieldsets to remove content_type and foreign_key fields
+        for the GenericForeignKey and replaces them with the dynamic fields
+        anywhere in the fieldsets declaration if it exists
+        """
+        if self.fieldsets:
+            updated_fieldsets = copy.deepcopy(self.fieldsets)
+            for fieldset_name, fieldset in updated_fieldsets:
+                fieldset["fields"] = self.__handle_fields(
+                    copy.deepcopy(fieldset["fields"])
                 )
-                updated_fields_with_generic_keys.remove(
-                    generic_related_fields["fk_field"]
-                )
-                updated_fields_with_generic_keys.append(field)
+            return updated_fieldsets
+        else:
+            return [(None, {"fields": self.get_fields(*args, **kwargs)})]
 
+    def __handle_fields(self, fields_to_update):
+        for field, generic_related_fields in self.generic_fields.items():
+            # first check for top level fields
+            try:
+                fields_to_update.remove(generic_related_fields["ct_field"])
+                fields_to_update.remove(generic_related_fields["fk_field"])
+                fields_to_update.append(field)
+                # we've done it for these fields, no need to check tuples
                 continue
             except ValueError:
                 pass
 
-            for idx, declared_field in enumerate(
-                updated_fields_with_generic_keys
-            ):
+            # then check each field individually to see if it's a tuple to
+            # dive a layer deeper
+            for idx, declared_field in enumerate(fields_to_update):
                 if isinstance(declared_field, tuple):
                     try:
                         ct_idx = declared_field.index(
@@ -86,16 +94,10 @@ class GenericFKAdmin(admin.ModelAdmin):
                         )
 
                         new_field = new_field + (field,)
-                        updated_fields_with_generic_keys[idx] = new_field
+                        fields_to_update[idx] = new_field
                     except ValueError:
                         pass
-
-        return updated_fields_with_generic_keys
-
-    def __handle_fieldsets(self):
-        updated_fields_with_generic_keys = copy.deepcopy(self.fieldsets)
-
-        return updated_fields_with_generic_keys
+        return fields_to_update
 
     def __handle_auto_gen(self):
         # if we don't have fields generate them ourselves, including the
@@ -119,6 +121,11 @@ class GenericFKAdmin(admin.ModelAdmin):
         return self.form
 
     def check(self, **kwargs):
+        """
+        Overrides check to inject checks about the typing of the form being
+        used with this admin class to ensure the admin will run without
+        crashing.
+        """
         errors = super().check(**kwargs)
         if not self.form:
             errors.append(
