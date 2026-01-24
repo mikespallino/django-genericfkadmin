@@ -36,10 +36,13 @@ class GenericFKModelForm(forms.ModelForm):
                 }
                 self.fields.pop(field.ct_field, None)
                 self.fields.pop(field.fk_field, None)
+                display_name = " ".join(
+                    [p[0].upper() + p[1:] for p in field.name.split("_")]
+                )
                 self.fields[generic_field_name] = GenericFKField(
                     field.model,
                     filter_callback=filter_callback,
-                    label=field.name,
+                    label=display_name,
                     help_text=(
                         field.help_text if hasattr(field, "help_text") else ""
                     ),  # drop when drop django 4.2
