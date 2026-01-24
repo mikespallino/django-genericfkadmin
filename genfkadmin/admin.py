@@ -61,12 +61,29 @@ class GenericFKAdmin(admin.ModelAdmin):
             return [(None, {"fields": self.get_fields(*args, **kwargs)})]
 
     def __handle_fields(self, fields_to_update):
+        origin_type = type(fields_to_update)
+        fields_to_update = list(fields_to_update)
         for field, generic_related_fields in self.generic_fields.items():
             # first check for top level fields
             try:
-                fields_to_update.remove(generic_related_fields["ct_field"])
-                fields_to_update.remove(generic_related_fields["fk_field"])
-                fields_to_update.append(field)
+                ct_idx = fields_to_update.index(
+                    generic_related_fields["ct_field"]
+                )
+                fk_idx = fields_to_update.index(
+                    generic_related_fields["fk_field"]
+                )
+
+                fields_to_update.pop(ct_idx)
+                fields_to_update.pop(fk_idx - 1)  # above pop shrinks list so -1
+                # figure out where the first generic field was and
+                # insert the new field there accounting for removals
+                new_idx = (
+                    min(ct_idx, fk_idx)
+                    if len(fields_to_update) >= min(ct_idx, fk_idx)
+                    else len(fields_to_update)
+                )
+                fields_to_update.insert(new_idx, field)
+
                 # we've done it for these fields, no need to check tuples
                 continue
             except ValueError:
@@ -93,24 +110,50 @@ class GenericFKAdmin(admin.ModelAdmin):
                             new_field[0:fk_idx] + new_field[fk_idx + 1 :]
                         )
 
-                        new_field = new_field + (field,)
+                        # figure out where the first generic field was and
+                        # insert the new field there accounting for removals
+                        new_idx = (
+                            min(ct_idx, fk_idx)
+                            if len(new_field) >= min(ct_idx, fk_idx)
+                            else len(new_field)
+                        )
+                        new_field = (
+                            new_field[0:new_idx]
+                            + (field,)
+                            + new_field[new_idx + 1 :]
+                        )
                         fields_to_update[idx] = new_field
                     except ValueError:
                         pass
-        return fields_to_update
+        return origin_type(fields_to_update)
 
     def __handle_auto_gen(self):
         # if we don't have fields generate them ourselves, including the
         # dynamic generic foreign key fields
         updated_fields_with_generic_keys = []
+        gen_fields_to_idx = dict()
         for field in self.model._meta.fields:
             if (
                 not field.primary_key
                 and field.name not in self.generic_related_fields
             ):
                 updated_fields_with_generic_keys.append(field.name)
+            elif field.name in self.generic_related_fields:
+                # track where this field would have gone if we didn't skip it
+                gen_fields_to_idx[field.name] = len(
+                    updated_fields_with_generic_keys
+                )
         for generic_field in self.generic_fields:
-            updated_fields_with_generic_keys.append(generic_field)
+            # so we can figure out were we should put the generated field
+            new_idx = min(
+                gen_fields_to_idx[
+                    self.generic_fields[generic_field]["ct_field"]
+                ],
+                gen_fields_to_idx[
+                    self.generic_fields[generic_field]["fk_field"]
+                ],
+            )
+            updated_fields_with_generic_keys.insert(new_idx, generic_field)
         return updated_fields_with_generic_keys
 
     def get_form(self, *args, **kwargs):

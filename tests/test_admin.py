@@ -284,7 +284,7 @@ class GenreAAdminForm(GenericFKModelForm):
 @admin.register(GenreA)
 class GenreFieldsTupleAdmin(GenericFKAdmin):
     form = GenreAAdminForm
-    fields = ["name", ("ct", "ob")]
+    fields = ("name", ("ct", "ob"))
 
 
 def test_admin_with_tuple_fields():
@@ -292,7 +292,7 @@ def test_admin_with_tuple_fields():
 
     admin = GenreFieldsTupleAdmin(GenreA, site)
     fields = admin.get_fields()
-    assert fields == ["name", ("media_gfk",)]
+    assert fields == ("name", ("media_gfk",))
 
 
 class GenreBAdminForm(GenericFKModelForm):
