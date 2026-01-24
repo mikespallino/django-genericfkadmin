@@ -98,3 +98,43 @@ class EmailDeliveryMechanism(DeliveryMechanism):
 
 class SMSDeliveryMechanism(DeliveryMechanism):
     material = GenericRelation(MarketingMaterial)
+
+
+class GenreA(models.Model):
+    name = models.CharField(max_length=256)
+
+    ct = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    ob = models.PositiveBigIntegerField()
+    media = GenericForeignKey("ct", "ob")
+
+
+class BookA(models.Model):
+    name = models.CharField(max_length=256)
+    artist = models.CharField(max_length=256)
+    genre = GenericRelation(GenreA)
+
+
+class MovieA(models.Model):
+    name = models.CharField(max_length=256)
+    director = models.CharField(max_length=256)
+    genre = GenericRelation(GenreA)
+
+
+class GenreB(models.Model):
+    name = models.CharField(max_length=256)
+
+    ct = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    ob = models.PositiveBigIntegerField()
+    media = GenericForeignKey("ct", "ob")
+
+
+class BookB(models.Model):
+    name = models.CharField(max_length=256)
+    artist = models.CharField(max_length=256)
+    genre = GenericRelation(GenreB)
+
+
+class MovieB(models.Model):
+    name = models.CharField(max_length=256)
+    director = models.CharField(max_length=256)
+    genre = GenericRelation(GenreB)

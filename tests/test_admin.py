@@ -11,7 +11,7 @@ from genfkadmin import FIELD_ID_FORMAT
 from genfkadmin.admin import GenericFKAdmin
 from genfkadmin.forms import GenericFKModelForm
 from tests.factories import DogFactory, PetFactory
-from tests.models import MarketingMaterial, Pet
+from tests.models import GenreA, GenreB, MarketingMaterial, Pet
 
 
 class BadAdminConfiguration(GenericFKAdmin):
@@ -272,3 +272,68 @@ def test_admin_filtered_change_add_resets_filter(
 
     for choice in all_choices:
         assert choice in response.content.decode(), f"choice missing {choice}"
+
+
+class GenreAAdminForm(GenericFKModelForm):
+
+    class Meta:
+        model = GenreA
+        fields = "__all__"
+
+
+@admin.register(GenreA)
+class GenreFieldsTupleAdmin(GenericFKAdmin):
+    form = GenreAAdminForm
+    fields = ["name", ("ct", "ob")]
+
+
+def test_admin_with_tuple_fields():
+    from django.contrib.admin import site
+
+    admin = GenreFieldsTupleAdmin(GenreA, site)
+    fields = admin.get_fields()
+    assert fields == ["name", ("media_gfk",)]
+
+
+class GenreBAdminForm(GenericFKModelForm):
+
+    class Meta:
+        model = GenreB
+        fields = "__all__"
+
+
+@admin.register(GenreB)
+class GenreFieldsetAdmin(GenericFKAdmin):
+    form = GenreBAdminForm
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["name"],
+            },
+        ),
+        (
+            "Type",
+            {
+                "classes": ["collapse"],
+                "fields": ["ct", "ob"],
+            },
+        ),
+    ]
+
+
+def test_admin_with_fieldsets():
+    from django.contrib.admin import site
+
+    admin = GenreFieldsetAdmin(GenreB, site)
+    fields = admin.get_fieldsets()
+    assert fields == [
+        (None, {"fields": ["name"]}),
+        (
+            "Type",
+            {
+                "classes": ["collapse"],
+                "fields": ["media_gfk"],
+            },
+        ),
+    ]
