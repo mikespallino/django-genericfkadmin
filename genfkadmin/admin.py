@@ -39,34 +39,76 @@ class GenericFKAdmin(admin.ModelAdmin):
         Overrides get_fields to remove content_type and foreign_key fields for
         the GenericForeignKey and replaces them with the dynamic fields.
         """
-        updated_fields_with_generic_keys = []
-
         if self.fields:
-            # if we have fields already make sure the content type and foreign
-            # key fields aren't present and add our generic fields
-            updated_fields_with_generic_keys = copy.deepcopy(self.fields)
-            for field, generic_related_fields in self.generic_fields.items():
-                try:
-                    updated_fields_with_generic_keys.remove(
-                        generic_related_fields["ct_field"]
-                    )
-                    updated_fields_with_generic_keys.remove(
-                        generic_related_fields["fk_field"]
-                    )
-                    updated_fields_with_generic_keys.append(field)
-                except ValueError:
-                    pass
+            return self.__handle_fields()
+        elif self.fieldsets:
+            return self.__handle_fieldsets()
         else:
-            # if we don't have fields generate them ourselves, including the
-            # dynamic generic foreign key fields
-            for field in self.model._meta.fields:
-                if (
-                    not field.primary_key
-                    and field.name not in self.generic_related_fields
-                ):
-                    updated_fields_with_generic_keys.append(field.name)
-            for generic_field in self.generic_fields:
-                updated_fields_with_generic_keys.append(generic_field)
+            return self.__handle_auto_gen()
+
+    def __handle_fields(self):
+        # if we have fields already make sure the content type and foreign
+        # key fields aren't present and add our generic fields
+        updated_fields_with_generic_keys = copy.deepcopy(self.fields)
+        for field, generic_related_fields in self.generic_fields.items():
+            try:
+                updated_fields_with_generic_keys.remove(
+                    generic_related_fields["ct_field"]
+                )
+                updated_fields_with_generic_keys.remove(
+                    generic_related_fields["fk_field"]
+                )
+                updated_fields_with_generic_keys.append(field)
+
+                continue
+            except ValueError:
+                pass
+
+            for idx, declared_field in enumerate(
+                updated_fields_with_generic_keys
+            ):
+                if isinstance(declared_field, tuple):
+                    try:
+                        ct_idx = declared_field.index(
+                            generic_related_fields["ct_field"]
+                        )
+                        new_field = tuple(
+                            declared_field[0:ct_idx]
+                            + declared_field[ct_idx + 1 :]
+                        )
+
+                        fk_idx = new_field.index(
+                            generic_related_fields["fk_field"]
+                        )
+
+                        new_field = tuple(
+                            new_field[0:fk_idx] + new_field[fk_idx + 1 :]
+                        )
+
+                        new_field = new_field + (field,)
+                        updated_fields_with_generic_keys[idx] = new_field
+                    except ValueError:
+                        pass
+
+        return updated_fields_with_generic_keys
+
+    def __handle_fieldsets(self):
+        updated_fields_with_generic_keys = copy.deepcopy(self.fieldsets)
+
+        return updated_fields_with_generic_keys
+
+    def __handle_auto_gen(self):
+        # if we don't have fields generate them ourselves, including the
+        # dynamic generic foreign key fields
+        updated_fields_with_generic_keys = []
+        for field in self.model._meta.fields:
+            if (
+                not field.primary_key
+                and field.name not in self.generic_related_fields
+            ):
+                updated_fields_with_generic_keys.append(field.name)
+        for generic_field in self.generic_fields:
+            updated_fields_with_generic_keys.append(generic_field)
         return updated_fields_with_generic_keys
 
     def get_form(self, *args, **kwargs):
