@@ -61,6 +61,8 @@ class GenericFKAdmin(admin.ModelAdmin):
             return [(None, {"fields": self.get_fields(*args, **kwargs)})]
 
     def __handle_fields(self, fields_to_update):
+        origin_type = type(fields_to_update)
+        fields_to_update = list(fields_to_update)
         for field, generic_related_fields in self.generic_fields.items():
             # first check for top level fields
             try:
@@ -97,7 +99,7 @@ class GenericFKAdmin(admin.ModelAdmin):
                         fields_to_update[idx] = new_field
                     except ValueError:
                         pass
-        return fields_to_update
+        return origin_type(fields_to_update)
 
     def __handle_auto_gen(self):
         # if we don't have fields generate them ourselves, including the
