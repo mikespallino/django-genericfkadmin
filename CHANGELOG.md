@@ -1,3 +1,14 @@
+# 0.1.4 `2025-01-24`
+
+## What's Changed
+* convert NotImplementedErrors to SystemChecks by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/13
+* Better Support for Admin Field and Fieldset Declarations by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/18
+* Convert `field.name` to Display Case for Generated Field by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/19
+* Support Field Ordering by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/20
+
+
+**Full Changelog**: https://github.com/mikespallino/django-genericfkadmin/compare/0.1.3...0.1.4
+
 # 0.1.3 `2025-10-23`
 
 ## What's Changed
