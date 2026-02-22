@@ -70,7 +70,9 @@ class GenericFKModelFormMetaclass(DeclarativeFieldsMetaclass):
 
             extra_kwargs = {}
             if django.VERSION[0] > 4:
-                extra_kwargs["form_declared_fields"] = new_class.declared_fields
+                extra_kwargs["form_declared_fields"] = (
+                    new_class.declared_fields
+                )
 
             fields = fields_for_model(
                 opts.model,

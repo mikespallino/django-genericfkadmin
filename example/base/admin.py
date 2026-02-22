@@ -6,7 +6,6 @@ from genfkadmin.forms import GenericFKModelForm
 
 
 class PetAdminForm(GenericFKModelForm):
-
     class Meta:
         model = Pet
         fields = "__all__"
