@@ -1,10 +1,9 @@
-from functools import partial
 from unittest.mock import MagicMock
 
 import pytest
 from django import forms
 from django.contrib import admin
-from django.core import checks
+from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 
 from genfkadmin import FIELD_ID_FORMAT
@@ -14,79 +13,47 @@ from tests.factories import DogFactory, PetFactory
 from tests.models import GenreA, GenreB, MarketingMaterial, Pet
 
 
-class BadAdminConfiguration(GenericFKAdmin):
-    pass
-
-
-def test_admin_must_define_form():
-    from django.contrib.admin import site
-
-    admin = BadAdminConfiguration(Pet, site)
-    errors = admin.check()
-    assert len(errors) >= 1
-    assert (
-        checks.Error(
-            "Admin form not overridden",
-            hint="Add a form attribute to the admin class with a form that subclasses GenericFKModelForm",
-            obj=admin,
-            id="genfkadmin.E001",
-        )
-        in errors
-    )
-
-
 class BadForm(forms.ModelForm):
     class Meta:
         model = Pet
         fields = "__all__"
 
 
+class BadAdminConfiguration(GenericFKAdmin):
+    form = BadForm
+
+
 def test_admin_form_must_subclass():
     from django.contrib.admin import site
 
-    BadAdminConfiguration.form = BadForm
     admin = BadAdminConfiguration(Pet, site)
-    errors = admin.check()
-    assert len(errors) >= 1
-    assert (
-        checks.Error(
-            "Admin form is not the correct type",
-            hint="self.form must be subclass of GenericFKModelForm",
-            obj=admin,
-            id="genfkadmin.E002",
-        )
-        in errors
+    with pytest.raises(ImproperlyConfigured) as ic:
+        admin.get_form(MagicMock())
+
+    assert ic.value.args[0] == (
+        "If providing form for GenericFKAdmin, form must"
+        " subclass GenericFKModelForm"
     )
-
-
-def test_admin_form_partial_func_must_subclass():
-    from django.contrib.admin import site
-
-    BadAdminConfiguration.form = partial(BadForm)
-    admin = BadAdminConfiguration(Pet, site)
-    errors = admin.check()
-    assert len(errors) >= 1
-    assert (
-        checks.Error(
-            "Admin form partial is not the correct type",
-            hint="self.form.func must be subclass of GenericFKModelForm",
-            obj=admin,
-            id="genfkadmin.E003",
-        )
-        in errors
-    )
-
-
-class GoodForm(GenericFKModelForm):
-
-    class Meta:
-        model = Pet
-        fields = "__all__"
 
 
 @admin.register(Pet)
 class GoodAdminConfiguration(GenericFKAdmin):
-    form = GoodForm
+    pass
+
+
+@pytest.mark.django_db
+def test_admin_form_allows_form_subclass():
+    from django.contrib.admin import site
+
+    class PetAdminForm(GenericFKModelForm):
+        class Meta:
+            model = Pet
+            fields = "__all__"
+
+    admin = GoodAdminConfiguration(Pet, site)
+    admin.form = PetAdminForm
+
+    assert admin.get_form(MagicMock())
 
 
 def test_good_admin_check_returns_no_errors():
@@ -157,31 +124,13 @@ def test_admin_renders_add(client, admin_user):
     assert response.status_code == 200
 
 
-class MarketingMaterialAdminForm(GenericFKModelForm):
-
-    class Meta:
-        model = MarketingMaterial
-        fields = "__all__"
-
-
 @admin.register(MarketingMaterial)
 class MarketingMaterialAdmin(GenericFKAdmin):
-    form = MarketingMaterialAdminForm
 
-    def get_form(self, request, obj=None, change=False, **kwargs):
+    def filter_callback(self, obj=None, queryset=None):
         if obj:
-            self.form = partial(
-                MarketingMaterialAdminForm,
-                filter_callback=lambda queryset: queryset.filter(
-                    customer=obj.customer
-                ),
-            )
-        else:
-            # this is important, otherwise, 1. add -> 2. change -> 3. add
-            # will use the filter on 2. in 3.
-            self.form = MarketingMaterialAdminForm
-
-        return super().get_form(request, obj=obj, change=change, **kwargs)
+            return queryset.filter(customer=obj.customer)
+        return queryset
 
 
 @pytest.mark.django_db
@@ -274,16 +223,8 @@ def test_admin_filtered_change_add_resets_filter(
         assert choice in response.content.decode(), f"choice missing {choice}"
 
 
-class GenreAAdminForm(GenericFKModelForm):
-
-    class Meta:
-        model = GenreA
-        fields = "__all__"
-
-
 @admin.register(GenreA)
 class GenreFieldsTupleAdmin(GenericFKAdmin):
-    form = GenreAAdminForm
     fields = ("name", ("ct", "ob"))
 
 
@@ -295,16 +236,8 @@ def test_admin_with_tuple_fields():
     assert fields == ("name", ("media_gfk",))
 
 
-class GenreBAdminForm(GenericFKModelForm):
-
-    class Meta:
-        model = GenreB
-        fields = "__all__"
-
-
 @admin.register(GenreB)
 class GenreFieldsetAdmin(GenericFKAdmin):
-    form = GenreBAdminForm
     fieldsets = [
         (
             None,

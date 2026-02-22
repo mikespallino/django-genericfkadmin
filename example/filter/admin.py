@@ -1,6 +1,5 @@
-from functools import partial
-
 from django.contrib import admin
+from django.db.models import QuerySet
 from filter.models import (
     Customer,
     EmailDeliveryMechanism,
@@ -10,7 +9,6 @@ from filter.models import (
 )
 
 from genfkadmin.admin import GenericFKAdmin
-from genfkadmin.forms import GenericFKModelForm
 
 
 @admin.register(Customer)
@@ -18,31 +16,16 @@ class CustomerAdmin(admin.ModelAdmin):
     pass
 
 
-class MarketingMaterialAdminForm(GenericFKModelForm):
-
-    class Meta:
-        model = MarketingMaterial
-        fields = "__all__"
-
-
 @admin.register(MarketingMaterial)
 class MarketingMaterialAdmin(GenericFKAdmin):
-    form = MarketingMaterialAdminForm
-
-    def get_form(self, request, obj=None, change=False, **kwargs):
+    def filter_callback(
+        self,
+        queryset: QuerySet,
+        obj: MarketingMaterial | None = None,
+    ):
         if obj:
-            self.form = partial(
-                MarketingMaterialAdminForm,
-                filter_callback=lambda queryset: queryset.filter(
-                    customer=obj.customer
-                ),
-            )
-        else:
-            # this is important, otherwise, 1. add -> 2. change -> 3. add
-            # will use the filter on 2. in 3.
-            self.form = MarketingMaterialAdminForm
-
-        return super().get_form(request, obj=obj, change=change, **kwargs)
+            return queryset.filter(customer=obj.customer)
+        return queryset
 
 
 @admin.register(EmailDeliveryMechanism)
