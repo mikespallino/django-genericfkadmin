@@ -76,7 +76,9 @@ class GenericFKAdmin(admin.ModelAdmin):
                 )
 
                 fields_to_update.pop(ct_idx)
-                fields_to_update.pop(fk_idx - 1)  # above pop shrinks list so -1
+                fields_to_update.pop(
+                    fk_idx - 1
+                )  # above pop shrinks list so -1
                 # figure out where the first generic field was and
                 # insert the new field there accounting for removals
                 new_idx = (

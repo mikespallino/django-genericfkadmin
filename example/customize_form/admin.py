@@ -8,7 +8,6 @@ from genfkadmin.forms import GenericFKModelForm
 
 
 class GenreAdminForm(GenericFKModelForm):
-
     class Meta:
         model = Genre
         fields = "__all__"

@@ -31,8 +31,7 @@ def test_admin_form_must_subclass():
         admin.get_form(MagicMock())
 
     assert ic.value.args[0] == (
-        "If providing form for GenericFKAdmin, form must"
-        " subclass GenericFKModelForm"
+        "If providing form for GenericFKAdmin, form must subclass GenericFKModelForm"
     )
 
 
@@ -72,9 +71,12 @@ def test_admin_stores_generic_fields():
 
     assert "content_object_gfk" in admin.generic_fields
     assert (
-        admin.generic_fields["content_object_gfk"]["ct_field"] == "content_type"
+        admin.generic_fields["content_object_gfk"]["ct_field"]
+        == "content_type"
     )
-    assert admin.generic_fields["content_object_gfk"]["fk_field"] == "object_id"
+    assert (
+        admin.generic_fields["content_object_gfk"]["fk_field"] == "object_id"
+    )
 
 
 def test_admin_stores_generic_related_fields():
@@ -126,7 +128,6 @@ def test_admin_renders_add(client, admin_user):
 
 @admin.register(MarketingMaterial)
 class MarketingMaterialAdmin(GenericFKAdmin):
-
     def filter_callback(self, obj=None, queryset=None):
         if obj:
             return queryset.filter(customer=obj.customer)
@@ -207,13 +208,13 @@ def test_admin_filtered_change_add_resets_filter(
     assert response.status_code == 200
 
     for choice in instance_choices:
-        assert (
-            choice in response.content.decode()
-        ), f"instance choice missing {choice}"
+        assert choice in response.content.decode(), (
+            f"instance choice missing {choice}"
+        )
     for choice in other_choices:
-        assert (
-            choice not in response.content.decode()
-        ), f"other choice included {choice}"
+        assert choice not in response.content.decode(), (
+            f"other choice included {choice}"
+        )
 
     url = reverse("admin:tests_marketingmaterial_add")
     response = client.get(url)
