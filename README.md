@@ -29,19 +29,10 @@ Using this package is pretty simple.
 e.g. in your `admin.py`
 ```python
 from genfkadmin.admin import GenericFKAdmin
-from genfkadmin.forms import GenericFKModelForm
-
-
-class PetAdminForm(GenericFKModelForm):
-
-    class Meta:
-        model = Pet
-        fields = "__all__"
-
 
 @admin.register(Pet)
 class PetAdmin(GenericFKAdmin):
-    form = PetAdminForm
+    pass
 ```
 
 ![example](docs/screenshots/example_base_admin.png)
@@ -54,19 +45,15 @@ the parent instance of your model with `GenericForeignKey`) you can pass a
 ```python
 @admin.register(MarketingMaterial)
 class MarketingMaterialAdmin(GenericFKAdmin):
-    form = MarketingMaterialAdminForm
 
-    def get_form(self, request, obj=None, change=False, **kwargs):
+    def filter_callback(
+        self,
+        queryset: QuerySet,
+        obj: MarketingMaterial | None = None,
+    ):
         if obj:
-            self.form = partial(
-                MarketingMaterialAdminForm,
-                filter_callback=lambda queryset: queryset.filter(customer=obj.customer),
-            )
-        else:
-            # this is important, otherwise, 1. add -> 2. change -> 3. add
-            # will use the filter on 2. in 3.
-            self.form = MarketingMaterialAdmin
-        return super().get_form(request, obj=obj, change=change, **kwargs)
+            return queryset.filter(customer=obj.customer)
+        return queryset
 ```
 
 Now when loading an existing `MarketingMaterial`, the `content_object` options are filtered by the chosen `Customer`

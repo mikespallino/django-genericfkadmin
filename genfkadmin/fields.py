@@ -3,6 +3,7 @@ from traceback import format_exc
 
 from django import forms
 from django.contrib.contenttypes.fields import GenericRelation
+from django.db import OperationalError
 
 from genfkadmin import FIELD_ID_FORMAT
 
@@ -30,26 +31,31 @@ class GenericFKField(forms.ChoiceField):
         # object_id of the selected value.
         for relation in model._meta._relation_tree:
             if isinstance(relation, GenericRelation):
-                queryset = relation.model.objects.all()
-                if filter_callback and callable(filter_callback):
-                    try:
-                        queryset = filter_callback(queryset)
-                    except Exception:
-                        logging.warning(
-                            f"Unable to filter queryset with callback: {format_exc()}"
-                        )
+                choices_for_model = []
+                try:
+                    queryset = relation.model.objects.all()
+                    if filter_callback and callable(filter_callback):
+                        try:
+                            queryset = filter_callback(queryset=queryset)
+                        except Exception:
+                            logging.warning(
+                                f"Unable to filter queryset with callback: {format_exc()}"
+                            )
 
-                choices_for_model = [
-                    (
-                        FIELD_ID_FORMAT.format(
-                            app_label=i._meta.app_label,
-                            model_name=i._meta.model_name,
-                            pk=i.pk,
-                        ),
-                        str(i),
-                    )
-                    for i in queryset
-                ]
+                    choices_for_model = [
+                        (
+                            FIELD_ID_FORMAT.format(
+                                app_label=i._meta.app_label,
+                                model_name=i._meta.model_name,
+                                pk=i.pk,
+                            ),
+                            str(i),
+                        )
+                        for i in queryset
+                    ]
+                except OperationalError:
+                    # table doesn't exist yet
+                    pass
 
                 app_label = relation.model._meta.app_label
                 app_label = app_label[0].upper() + app_label[1:]
