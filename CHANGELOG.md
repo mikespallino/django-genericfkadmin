@@ -1,4 +1,13 @@
-# 0.1.4 `2025-01-24`
+# 0.2.0 `2026-02-22`
+## What's Changed
+* refactor for new filter callback abstraction by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/22
+* update supported  python django testing matrix by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/23
+* convert from black to ruff by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/24
+
+
+**Full Changelog**: https://github.com/mikespallino/django-genericfkadmin/compare/0.1.4...v0.2.0
+
+# 0.1.4 `2026-01-24`
 
 ## What's Changed
 * convert NotImplementedErrors to SystemChecks by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/13
