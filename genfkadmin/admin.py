@@ -174,6 +174,8 @@ class GenericFKAdmin(admin.ModelAdmin):
                 "If providing form for GenericFKAdmin, form must subclass"
                 " GenericFKModelForm"
             )
+        else:
+            kwargs["form"] = self.form
 
         if self.filter_callback:
             kwargs["form"].filter_callback = (
