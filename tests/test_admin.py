@@ -55,6 +55,22 @@ def test_admin_form_allows_form_subclass():
     assert admin.get_form(MagicMock())
 
 
+@pytest.mark.django_db
+def test_admin_form_allows_form_subclass_with_filter_callback():
+    from django.contrib.admin import site
+
+    class PetAdminForm(GenericFKModelForm):
+        class Meta:
+            model = Pet
+            fields = "__all__"
+
+    admin = GoodAdminConfiguration(Pet, site)
+    admin.filter_callback = lambda self, obj, queryset: queryset
+    admin.form = PetAdminForm
+
+    assert admin.get_form(MagicMock())
+
+
 def test_good_admin_check_returns_no_errors():
     from django.contrib.admin import site
 
