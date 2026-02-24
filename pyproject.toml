@@ -1,6 +1,6 @@
 [project]
 name = "django-genfkadmin"
-version = "0.2.0"
+version = "0.2.1"
 description = "No frills GenericForeignKeys for your Django Admin"
 readme = "README.md"
 authors = [
@@ -9,13 +9,13 @@ authors = [
 maintainers = [
   {name = "Michael Spallino", email = "mikehspallino@gmail.com"},
 ]
+license = "MIT"
 license-files = ["LICENSE"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: Libraries :: Application Frameworks",
-  "License :: OSI Approved :: MIT License",
   "Framework :: Django :: 4.2",
   "Framework :: Django :: 5",
   "Framework :: Django :: 5.1",
