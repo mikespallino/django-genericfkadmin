@@ -1,3 +1,11 @@
+# 0.2.2 `2026-02-24`
+## What's Changed
+* handle forms with customized fields by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/28
+
+
+**Full Changelog**: https://github.com/mikespallino/django-genericfkadmin/compare/v0.2.1...v0.2.2
+
+
 # 0.2.1 `2026-02-24`
 ## What's Changed
 * fix form and filter callback bug by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/26
