@@ -71,6 +71,26 @@ def test_admin_form_allows_form_subclass_with_filter_callback():
     assert admin.get_form(MagicMock())
 
 
+@pytest.mark.django_db
+def test_admin_form_allows_form_subclass_with_other_fields():
+    from django.contrib.admin import site
+
+    class PetAdminForm(GenericFKModelForm):
+        another_field = forms.CharField()
+
+        class Meta:
+            model = Pet
+            fields = "__all__"
+
+    admin = GoodAdminConfiguration(Pet, site)
+    admin.filter_callback = lambda self, obj, queryset: queryset
+    admin.form = PetAdminForm
+
+    actual_fields = admin.get_fields(MagicMock())
+    assert "another_field" in actual_fields
+    assert "content_object_gfk" in actual_fields
+
+
 def test_good_admin_check_returns_no_errors():
     from django.contrib.admin import site
 
@@ -106,7 +126,7 @@ def test_admin_default_field_config_removes_generic_related_fields():
     from django.contrib.admin import site
 
     admin = GoodAdminConfiguration(Pet, site)
-    fields = admin.get_fields()
+    fields = admin.get_fields(MagicMock())
     assert admin.generic_related_fields & set(fields) == set()
 
 

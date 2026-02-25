@@ -7,11 +7,14 @@ from django.db import models
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=256)
-
     ct = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     ob = models.PositiveBigIntegerField()
     media = GenericForeignKey("ct", "ob")
+
+    name = models.CharField(max_length=256)
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class Book(models.Model):

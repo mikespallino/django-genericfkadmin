@@ -44,6 +44,13 @@ class GenericFKAdmin(admin.ModelAdmin):
         if self.fields:
             return self.__handle_fields(copy.deepcopy(self.fields))
         else:
+            if self.form and issubclass(self.form, GenericFKModelForm):
+                # respect the GenericFKModelForm fields
+                # there isn't a great way to maintain order here
+                return [
+                    *self.form.base_fields,
+                    *self.get_readonly_fields(args[0], kwargs.get("obj")),
+                ]
             return self.__handle_auto_gen()
 
     def get_fieldsets(self, *args, **kwargs):
