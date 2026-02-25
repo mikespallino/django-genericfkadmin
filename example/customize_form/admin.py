@@ -1,13 +1,17 @@
 from customize_form.models import Book, Genre, Movie
 from django.contrib import admin
 from django.core.exceptions import ValidationError
-from django.forms import Textarea
+from django.forms import CharField, Textarea
 
 from genfkadmin.admin import GenericFKAdmin
 from genfkadmin.forms import GenericFKModelForm
 
 
 class GenreAdminForm(GenericFKModelForm):
+    another_field = CharField(
+        help_text="This is not a real field on Genre", required=True
+    )
+
     class Meta:
         model = Genre
         fields = "__all__"
@@ -25,7 +29,6 @@ class GenreAdminForm(GenericFKModelForm):
 @admin.register(Genre)
 class GenreAdmin(GenericFKAdmin):
     form = GenreAdminForm
-    fields = ("name", ("ct", "ob"))
 
 
 @admin.register(Book)
