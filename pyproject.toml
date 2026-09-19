@@ -1,6 +1,6 @@
 [project]
 name = "django-genfkadmin"
-version = "0.2.2"
+version = "0.3.0"
 description = "No frills GenericForeignKeys for your Django Admin"
 readme = "README.md"
 authors = [
@@ -12,7 +12,7 @@ maintainers = [
 license = "MIT"
 license-files = ["LICENSE"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: Libraries :: Application Frameworks",
@@ -35,6 +35,8 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/mikespallino/django-genericfkadmin"
 Issues = "https://github.com/mikespallino/django-genericfkadmin/issues"
+Source = "https://github.com/mikespallino/django-genericfkadmin"
+Changelog = "https://github.com/mikespallino/django-genericfkadmin/blob/main/CHANGELOG.md"
 
 [tool.isort]
 profile = "black"
