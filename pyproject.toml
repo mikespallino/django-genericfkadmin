@@ -16,8 +16,6 @@ classifiers = [
   "Intended Audience :: Developers",
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: Libraries :: Application Frameworks",
-  "Framework :: Django :: 4.2",
-  "Framework :: Django :: 5",
   "Framework :: Django :: 5.1",
   "Framework :: Django :: 5.2",
   "Framework :: Django :: 6.0",
@@ -31,7 +29,7 @@ classifiers = [
 ]
 requires-python = ">=3.10,<3.15"
 dependencies = [
-    "django>=4.2",
+    "django>=5.1",
 ]
 
 [project.urls]
