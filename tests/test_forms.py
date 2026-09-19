@@ -7,13 +7,14 @@ from genfkadmin.forms import GenericFKModelForm
 from tests.models import Cat, Dog, Pet
 
 
+class PetAdminForm(GenericFKModelForm):
+    class Meta:
+        model = Pet
+        fields = "__all__"
+
+
 @pytest.mark.django_db
 def test_form_detects_generic_fields():
-    class PetAdminForm(GenericFKModelForm):
-        class Meta:
-            model = Pet
-            fields = "__all__"
-
     form = PetAdminForm()
 
     assert "content_object_gfk" in form.generic_fields
@@ -25,11 +26,6 @@ def test_form_detects_generic_fields():
 
 @pytest.mark.django_db
 def test_form_removes_content_type_and_fk_fields():
-    class PetAdminForm(GenericFKModelForm):
-        class Meta:
-            model = Pet
-            fields = "__all__"
-
     form = PetAdminForm()
 
     assert "content_object_gfk" in form.fields
@@ -39,11 +35,6 @@ def test_form_removes_content_type_and_fk_fields():
 
 @pytest.mark.django_db
 def test_form_populates_initial_value(pets):
-    class PetAdminForm(GenericFKModelForm):
-        class Meta:
-            model = Pet
-            fields = "__all__"
-
     instance = pets["pets"][0]
     dog = pets["dogs"][0]
     form = PetAdminForm(instance=instance)
@@ -54,11 +45,6 @@ def test_form_populates_initial_value(pets):
 
 @pytest.mark.django_db
 def test_form_save_updates_content_type_and_fk_fields(pets):
-    class PetAdminForm(GenericFKModelForm):
-        class Meta:
-            model = Pet
-            fields = "__all__"
-
     instance = pets["pets"][0]
     assert instance.content_type == ContentType.objects.get_for_model(Dog)
     assert instance.content_object == pets["dogs"][0]
