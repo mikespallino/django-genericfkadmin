@@ -1,3 +1,11 @@
+# 0.3.0 `2026-09-19`
+## What's Changed
+* drop django < 5.1 support by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/32
+* lazy admin options by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/31
+
+
+**Full Changelog**: https://github.com/mikespallino/django-genericfkadmin/compare/v0.2.2...v0.3.0
+
 # 0.2.2 `2026-02-24`
 ## What's Changed
 * handle forms with customized fields by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/28
