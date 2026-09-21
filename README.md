@@ -39,8 +39,8 @@ class PetAdmin(GenericFKAdmin):
 
 #### Providing a `filter_callback`
 If you want to further filter the queryset (perhaps by something related to
-the parent instance of your model with `GenericForeignKey`) you can pass a
-`partial` with a keyword argument of `filter_callback` as follows.
+the parent instance of your model with `GenericForeignKey`) you can define a
+method on your admin class as follows:
 
 ```python
 @admin.register(MarketingMaterial)
