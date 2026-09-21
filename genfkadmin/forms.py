@@ -110,7 +110,9 @@ class GenericFKModelFormMetaclass(DeclarativeFieldsMetaclass):
 
         filter_callback = None
         for base in bases:
-            if base == GenericFKModelForm:
+            if base == GenericFKModelForm or issubclass(
+                base, GenericFKModelForm
+            ):
                 filter_callback = base.filter_callback
 
         # private_fields has GenericForeignKeys, so we check for those here

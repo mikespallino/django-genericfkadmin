@@ -3,7 +3,8 @@ from unittest.mock import MagicMock
 import pytest
 from django import forms
 from django.contrib import admin
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.forms import CharField
 from django.urls import reverse
 
 from genfkadmin import FIELD_ID_FORMAT
@@ -259,6 +260,69 @@ def test_admin_filtered_change_add_resets_filter(
 
     for choice in all_choices:
         assert choice in response.content.decode(), f"choice missing {choice}"
+
+
+@pytest.mark.django_db
+def test_admin_filters_with_custom_form(
+    marketing_materials, client, admin_user
+):
+    class MarketingMaterialAdminForm(GenericFKModelForm):
+        another_field = CharField(
+            help_text="This is not a real field on MarketingMaterial",
+            required=True,
+        )
+
+        class Meta:
+            model = MarketingMaterial
+            fields = "__all__"
+
+        def clean_another_field(self):
+            value = self.cleaned_data["another_field"]
+            if value.lower() != value:
+                raise ValidationError("another_field must be lowercase")
+            return value
+
+    MarketingMaterialAdmin.form = MarketingMaterialAdminForm
+
+    client.force_login(admin_user)
+
+    instance = marketing_materials["marketing_materials"]["m1"]["instance"]
+    instance_choices = [
+        FIELD_ID_FORMAT.format(
+            app_label="tests",
+            model_name=mechanism.__class__.__name__.lower(),
+            pk=mechanism.pk,
+        )
+        for mechanism in marketing_materials["marketing_materials"]["m1"][
+            "options"
+        ]
+    ]
+    other_choices = [
+        FIELD_ID_FORMAT.format(
+            app_label="tests",
+            model_name=mechanism.__class__.__name__.lower(),
+            pk=mechanism.pk,
+        )
+        for mechanism in marketing_materials["marketing_materials"]["m2"][
+            "options"
+        ]
+    ]
+
+    url = reverse(
+        "admin:tests_marketingmaterial_change",
+        kwargs={"object_id": instance.pk},
+    )
+    response = client.get(url)
+    assert response.status_code == 200
+
+    for choice in instance_choices:
+        assert choice in response.content.decode(), (
+            f"instance choice missing {choice}"
+        )
+    for choice in other_choices:
+        assert choice not in response.content.decode(), (
+            f"other choice included {choice}"
+        )
 
 
 @admin.register(GenreA)
