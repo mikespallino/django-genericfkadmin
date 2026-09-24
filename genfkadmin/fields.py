@@ -3,12 +3,11 @@ from traceback import format_exc
 
 from django import forms
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import OperationalError
 from django.forms import ChoiceField, Field, models
 
-from genfkadmin import FIELD_ID_FORMAT
+from genfkadmin.helpers import get_gfk_value, get_model_instance_for_gfk_value
 
 logger = logging.getLogger(__name__)
 
@@ -74,11 +73,7 @@ class GenericModelChoiceIterator(models.BaseChoiceIterator):
         Return model instance as FIELD_ID_FORMAT string and __str__ of model.
         """
         return (
-            FIELD_ID_FORMAT.format(
-                app_label=obj._meta.app_label,
-                model_name=obj._meta.model_name,
-                pk=obj.pk,
-            ),
+            get_gfk_value(obj),
             str(obj),
         )
 
@@ -129,15 +124,7 @@ class GenericFKField(forms.ModelChoiceField):
             return None
         self.validate_no_null_characters(value)
         try:
-            app_label, rest = value.split("$")
-            model_name, dirty_id = rest.split("[")
-
-            content_type = ContentType.objects.get(
-                app_label=app_label, model=model_name
-            )
-            object_id = dirty_id.strip("[").strip("]")
-
-            content_type.get_object_for_this_type(pk=object_id)
+            return get_model_instance_for_gfk_value(value)
         except (ValueError, TypeError, self.queryset.model.DoesNotExist):
             raise ValidationError(
                 self.error_messages["invalid_choice"],

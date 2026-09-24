@@ -1,7 +1,6 @@
 import django
 from django import forms
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import (
     ImproperlyConfigured,
 )
@@ -13,8 +12,9 @@ from django.forms.models import (
     fields_for_model,
 )
 
-from genfkadmin import FIELD_ID_FORMAT, GENERIC_FIELD_NAME
+from genfkadmin import GENERIC_FIELD_NAME
 from genfkadmin.fields import GenericFKField
+from genfkadmin.helpers import get_generic_fields, get_gfk_value
 
 
 class GenericFKModelFormMetaclass(DeclarativeFieldsMetaclass):
@@ -172,11 +172,7 @@ class GenericFKModelForm(
                 self.generic_fields[field_name]["original_field_name"],
             )
             if target_instance:
-                return FIELD_ID_FORMAT.format(
-                    app_label=target_instance._meta.app_label,
-                    model_name=target_instance._meta.model_name,
-                    pk=target_instance.pk,
-                )
+                return get_gfk_value(target_instance)
         return super().get_initial_for_field(field, field_name)
 
     def save(self, commit=True):
@@ -188,13 +184,7 @@ class GenericFKModelForm(
         # values dynamically
         for generic_field, related_fields in self.generic_fields.items():
             target_model_instance = self.cleaned_data[generic_field]
-            app_label, rest = target_model_instance.split("$")
-            model_name, dirty_id = rest.split("[")
-
-            content_type = ContentType.objects.get(
-                app_label=app_label, model=model_name
-            )
-            object_id = dirty_id.strip("[").strip("]")
+            content_type, object_id = get_generic_fields(target_model_instance)
 
             setattr(instance, related_fields["ct_field"], content_type)
             setattr(instance, related_fields["fk_field"], object_id)

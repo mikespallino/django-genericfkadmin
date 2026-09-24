@@ -10,8 +10,15 @@ from django.urls import reverse
 from genfkadmin import FIELD_ID_FORMAT
 from genfkadmin.admin import GenericFKAdmin
 from genfkadmin.forms import GenericFKModelForm
+from genfkadmin.helpers import get_gfk_value
 from tests.factories import DogFactory, PetFactory
-from tests.models import GenreA, GenreB, MarketingMaterial, Pet
+from tests.models import (
+    EmailDeliveryMechanism,
+    GenreA,
+    GenreB,
+    MarketingMaterial,
+    Pet,
+)
 
 
 class BadForm(forms.ModelForm):
@@ -372,3 +379,50 @@ def test_admin_with_fieldsets():
             },
         ),
     ]
+
+
+@pytest.mark.django_db
+def test_form_cleaned_is_instance(client, admin_user, marketing_materials):
+    class MarketingMaterialAdminForm(GenericFKModelForm):
+        class Meta:
+            model = MarketingMaterial
+            fields = "__all__"
+
+        def clean(self):
+            super().clean()
+            delivery_method = self.cleaned_data["delivery_method_gfk"]
+
+            assert not isinstance(delivery_method, str)
+            assert isinstance(delivery_method, EmailDeliveryMechanism)
+
+            customer = self.cleaned_data["customer"]
+            if delivery_method.customer != customer:
+                raise ValidationError(
+                    "delivery_method is for the wrong customer"
+                )
+            return self.cleaned_data
+
+    MarketingMaterialAdmin.form = MarketingMaterialAdminForm
+
+    client.force_login(admin_user)
+
+    delivery_method = marketing_materials["email"]["e1"]
+    customer = marketing_materials["customer"]["c2"]
+
+    url = reverse(
+        "admin:tests_marketingmaterial_add",
+    )
+    response = client.get(url)
+    assert response.status_code == 200
+
+    response = client.post(
+        url,
+        data={
+            "delivery_method_gfk": get_gfk_value(delivery_method),
+            "customer": customer.pk,
+            "title": "foo",
+            "body": "bar",
+        },
+    )
+    assert response.status_code == 200
+    assert b"delivery_method is for the wrong customer" in response.content
