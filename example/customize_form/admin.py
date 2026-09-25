@@ -25,6 +25,16 @@ class GenreAdminForm(GenericFKModelForm):
             raise ValidationError("name must be lowercase")
         return value
 
+    def clean(self):
+        super().clean()
+        media_generic_field = self.get_generic_field_name_for("media")
+        media = self.cleaned_data[media_generic_field]
+        if media.name.lower() != media.name:
+            raise ValidationError(
+                {media_generic_field: "media name must be lowercase"}
+            )
+        return self.cleaned_data
+
 
 @admin.register(Genre)
 class GenreAdmin(GenericFKAdmin):

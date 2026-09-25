@@ -1,9 +1,9 @@
 # Django GenericFKAdmin
 
-Using `GenericForeignKey` in your Django models is cool, the default behavior of
-Django Admin is not. This package allows you to replace the `content_type` and
-`object_id` fields in your admin forms with a single input that is prefilled
-with only the models related through `GenericRelation` fields.
+Using `GenericForeignKey` in your Django models is cool, the default behavior
+of Django Admin is not. This package allows you to replace the `content_type`
+and `object_id` fields in your admin forms with a single input that is
+prefilled with only the models related through `GenericRelation` fields.
 
 ## Setup
 
@@ -27,8 +27,10 @@ Using this package is pretty simple.
 4. Profit!
 
 e.g. in your `admin.py`
+
 ```python
 from genfkadmin.admin import GenericFKAdmin
+
 
 @admin.register(Pet)
 class PetAdmin(GenericFKAdmin):
@@ -38,6 +40,7 @@ class PetAdmin(GenericFKAdmin):
 ![example](docs/screenshots/example_base_admin.png)
 
 #### Providing a `filter_callback`
+
 If you want to further filter the queryset (perhaps by something related to
 the parent instance of your model with `GenericForeignKey`) you can define a
 method on your admin class as follows:
@@ -56,7 +59,30 @@ class MarketingMaterialAdmin(GenericFKAdmin):
         return queryset
 ```
 
-Now when loading an existing `MarketingMaterial`, the `content_object` options are filtered by the chosen `Customer`
+Now when loading an existing `MarketingMaterial`, the `content_object` options
+are filtered by the chosen `Customer`
 ![example](docs/screenshots/example_filter_admin.png)
+
+#### Using GFK Resolved Values
+
+You might want to utilize the object of the GenericForeignKey field somewhere
+in your form code, such as your clean method. To do this use the
+`get_generic_field_name_for` method.
+
+```python
+class GenreAdminForm(GenericFKModelForm):
+
+    class Meta:
+        model = Genre
+        fields = "__all__"
+
+    def clean(self):
+        super().clean()
+        media_generic_field = self.get_generic_field_name_for("media")
+        media = self.cleaned_data[media_generic_field]
+        if media.name.lower() != media.name:
+            raise ValidationError({media_generic_field: "media name must be lowercase"})
+        return self.cleaned_data
+```
 
 A complete example django app exists in this repository at [here](/example)
