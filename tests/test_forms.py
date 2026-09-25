@@ -1,3 +1,5 @@
+from itertools import chain
+
 import pytest
 from django.contrib.contenttypes.models import ContentType
 
@@ -118,3 +120,38 @@ def test_form_get_generic_field_name_for_fails_for_non_generic_field(pets):
     form = PetAdminForm(instance=instance)
     with pytest.raises(ValueError):
         form.get_generic_field_name_for("does_not_exist")
+
+
+@pytest.mark.django_db
+def test_form_filter_with_broken_function_returns_all(pets):
+    instance = pets["pets"][0]
+
+    def filter_callback(self, queryset):
+        raise Exception("Bad!")
+
+    GenericFKModelForm.filter_callback = filter_callback
+
+    class PetAdminForm(GenericFKModelForm):
+        class Meta:
+            model = Pet
+            fields = "__all__"
+
+    form = PetAdminForm(
+        instance=instance,
+    )
+
+    expected_choices = [
+        FIELD_ID_FORMAT.format(
+            app_label="tests",
+            model_name=pet.__class__.__name__.lower(),
+            pk=pet.pk,
+        )
+        for pet in chain(Dog.objects.all(), Cat.objects.all())
+    ]
+    actual_choices = [
+        value
+        for optgroup, choices in form.fields["content_object_gfk"].choices
+        for value, display_value in choices
+    ]
+
+    assert expected_choices == actual_choices

@@ -20,7 +20,9 @@ class Genre(models.Model):
 class Book(models.Model):
     name = models.CharField(max_length=256)
     author = models.CharField(max_length=256)
-    genre = GenericRelation(Genre)
+    genre = GenericRelation(
+        Genre, object_id_field="ob", content_type_field="ct"
+    )
 
     def __str__(self):
         return f"{self.name} by {self.author}"
@@ -29,7 +31,9 @@ class Book(models.Model):
 class Movie(models.Model):
     name = models.CharField(max_length=256)
     director = models.CharField(max_length=256)
-    genre = GenericRelation(Genre)
+    genre = GenericRelation(
+        Genre, object_id_field="ob", content_type_field="ct"
+    )
 
     def __str__(self):
         return f"{self.name} by {self.director}"
