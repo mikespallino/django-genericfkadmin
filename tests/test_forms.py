@@ -100,3 +100,21 @@ def test_form_filter(pets):
     ]
 
     assert expected_choices == actual_choices
+
+
+@pytest.mark.django_db
+def test_form_get_generic_field_name_for_returns_formatted_name(pets):
+    instance = pets["pets"][0]
+    form = PetAdminForm(instance=instance)
+    assert (
+        form.get_generic_field_name_for("content_object")
+        == "content_object_gfk"
+    )
+
+
+@pytest.mark.django_db
+def test_form_get_generic_field_name_for_fails_for_non_generic_field(pets):
+    instance = pets["pets"][0]
+    form = PetAdminForm(instance=instance)
+    with pytest.raises(ValueError):
+        form.get_generic_field_name_for("does_not_exist")

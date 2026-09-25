@@ -390,7 +390,9 @@ def test_form_cleaned_is_instance(client, admin_user, marketing_materials):
 
         def clean(self):
             super().clean()
-            delivery_method = self.cleaned_data["delivery_method_gfk"]
+            delivery_method = self.cleaned_data[
+                self.get_generic_field_name_for("delivery_method")
+            ]
 
             assert not isinstance(delivery_method, str)
             assert isinstance(delivery_method, EmailDeliveryMechanism)

@@ -53,6 +53,7 @@ class GenericFKModelFormMetaclass(DeclarativeFieldsMetaclass):
                 raise TypeError(msg)
 
         generic_fields = {}
+        field_to_generic_field = {}
 
         if opts.model:
             # If a model is defined, extract form fields from it.
@@ -127,6 +128,7 @@ class GenericFKModelFormMetaclass(DeclarativeFieldsMetaclass):
                 generic_field_name = GENERIC_FIELD_NAME.format(
                     field_name=field.name
                 )
+                field_to_generic_field[field.name] = generic_field_name
                 generic_fields[generic_field_name] = {
                     "original_field_name": field.name,
                     "ct_field": field.ct_field,
@@ -148,6 +150,7 @@ class GenericFKModelFormMetaclass(DeclarativeFieldsMetaclass):
 
         new_class.base_fields = fields
         new_class.generic_fields = generic_fields
+        new_class.field_to_generic_field = field_to_generic_field
 
         return new_class
 
@@ -190,6 +193,15 @@ class GenericFKModelForm(
             setattr(instance, related_fields["fk_field"], object_id)
 
         return instance
+
+    def get_generic_field_name_for(self, field: str) -> str:
+        """
+        Given a GenericForeignKey field name, return the custom field name.
+        """
+        generic_field = self.field_to_generic_field.get(field)
+        if not generic_field:
+            raise ValueError(f"Field {field} is not a GenericForeignKey field")
+        return generic_field
 
 
 __all__ = [
