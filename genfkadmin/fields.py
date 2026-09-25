@@ -4,7 +4,6 @@ from traceback import format_exc
 from django import forms
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
-from django.db import OperationalError
 from django.forms import ChoiceField, Field, models
 
 from genfkadmin.helpers import get_gfk_value, get_model_instance_for_gfk_value
@@ -27,19 +26,15 @@ class GenericModelChoiceIterator(models.BaseChoiceIterator):
     def get_querysets_from_relation_tree(self):
         for relation in self.relation_tree:
             if isinstance(relation, GenericRelation):
-                try:
-                    queryset = relation.model.objects.all()
-                    if self.filter_callback and callable(self.filter_callback):
-                        try:
-                            queryset = self.filter_callback(queryset=queryset)
-                        except Exception:
-                            logging.warning(
-                                f"Unable to filter queryset with callback: {format_exc()}"
-                            )
-                    yield relation, queryset
-                except OperationalError:
-                    # table doesn't exist yet
-                    pass
+                queryset = relation.model.objects.all()
+                if self.filter_callback and callable(self.filter_callback):
+                    try:
+                        queryset = self.filter_callback(queryset=queryset)
+                    except Exception:
+                        logging.warning(
+                            f"Unable to filter queryset with callback: {format_exc()}"
+                        )
+                yield relation, queryset
 
     def __iter__(self):
         # generic relations are stored in _relation_tree, so we can grab
@@ -131,7 +126,6 @@ class GenericFKField(forms.ModelChoiceField):
                 code="invalid_choice",
                 params={"value": value},
             )
-        return value
 
     def __deepcopy__(self, memo):
         # skip super interaction with queryset
