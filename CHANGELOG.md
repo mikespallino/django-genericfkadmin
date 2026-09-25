@@ -1,3 +1,16 @@
+# 0.3.2 `2026-09-24`
+
+
+## What's Changed
+* return gfk instances from to_python by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/36
+* add api for generic field access in form by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/37
+* enforce test coverage by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/38
+* misc fixes by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/39
+
+
+**Full Changelog**: https://github.com/mikespallino/django-genericfkadmin/compare/v0.3.1...v0.3.2
+
+
 # 0.3.1 `2026-09-21`
 
 
