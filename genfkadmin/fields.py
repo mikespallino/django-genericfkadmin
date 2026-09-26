@@ -24,6 +24,11 @@ class GenericModelChoiceIterator(models.BaseChoiceIterator):
         self.filter_callback = field._filter_callback
 
     def get_querysets_from_relation_tree(self):
+        """
+        Go through the relation tree and for any GenericRelations yield a
+        queryset for related model. If `filter_callback` was supplied and is a
+        callable, apply it to the queryset before yielding.
+        """
         for relation in self.relation_tree:
             if isinstance(relation, GenericRelation):
                 queryset = relation.model.objects.all()
@@ -37,12 +42,14 @@ class GenericModelChoiceIterator(models.BaseChoiceIterator):
                 yield relation, queryset
 
     def __iter__(self):
-        # generic relations are stored in _relation_tree, so we can grab
-        # the models from those relations and develop a set of choices
-        # for the select input. The value of the choice is a formatted string
-        # FIELD_ID_FORMAT, that stores the necessary information to parse
-        # back out in the form on save to grab the content_type_id and
-        # object_id of the selected value.
+        """
+        generic relations are stored in _relation_tree, so we can grab
+        the models from those relations and develop a set of choices
+        for the select input. The value of the choice is a formatted string
+        FIELD_ID_FORMAT, that stores the necessary information to parse
+        back out in the form on save to grab the content_type_id and
+        object_id of the selected value.
+        """
         for relation, queryset in self.get_querysets_from_relation_tree():
             app_label = relation.model._meta.app_label
             app_label = app_label[0].upper() + app_label[1:]
@@ -127,8 +134,10 @@ class GenericFKField(forms.ModelChoiceField):
                 params={"value": value},
             )
 
-    def __deepcopy__(self, memo):
-        # skip super interaction with queryset
+    def __deepcopy__(self, memo: object) -> Field:
+        """
+        Skip super interaction with queryset
+        """
         return super(ChoiceField, self).__deepcopy__(memo)
 
 

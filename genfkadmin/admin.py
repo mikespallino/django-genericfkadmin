@@ -1,10 +1,11 @@
 import copy
 from functools import partial
-from typing import Callable
+from typing import Any, Callable
 
 from django.contrib import admin
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import QuerySet
 from django.forms import ModelForm
 
 from genfkadmin import GENERIC_FIELD_NAME
@@ -16,7 +17,11 @@ class GenericFKAdmin(admin.ModelAdmin):
     A ModelAdmin for use with a Model that utilizes GenericForeignKeys.
     """
 
-    filter_callback: Callable = None
+    filter_callback: Callable[[QuerySet], Any] = None
+    """
+    An optional method that will be used to filter the queryset of
+    GenericRelation models on the change form.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -57,7 +62,7 @@ class GenericFKAdmin(admin.ModelAdmin):
         """
         Overrides get_fieldsets to remove content_type and foreign_key fields
         for the GenericForeignKey and replaces them with the dynamic fields
-        anywhere in the fieldsets declaration if it exists
+        anywhere in the fieldsets declaration if it exists.
         """
         if self.fieldsets:
             updated_fieldsets = copy.deepcopy(self.fieldsets)
