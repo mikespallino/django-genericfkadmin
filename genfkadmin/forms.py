@@ -179,12 +179,15 @@ class GenericFKModelForm(
         return super().get_initial_for_field(field, field_name)
 
     def save(self, commit=True):
+        """
+        Overrides model form save to convert the GFK instance back to saving
+        the content type and object it fields for the relation. For the generic
+        fields, we parse the value out of FIELD_ID_FORMAT which gives us the
+        ability to query for the ContentType and get the primary key of the
+        related field. We use setattr to update these values dynamically.
+        """
         instance = super().save(commit=commit)
 
-        # for the generic fields, we parse the value out of FIELD_ID_FORMAT
-        # which gives us the ability to query for the ContentType and get the
-        # primary key of the related field. We use setattr to update these
-        # values dynamically
         for generic_field, related_fields in self.generic_fields.items():
             target_model_instance = self.cleaned_data[generic_field]
             content_type, object_id = get_generic_fields(target_model_instance)

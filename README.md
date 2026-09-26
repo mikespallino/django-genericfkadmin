@@ -21,10 +21,9 @@ uv add django-genfkadmin
 
 Using this package is pretty simple.
 
-1. Create a subclass of `GenericFKModelForm` for your model.
-2. Create a subclass of `GenericFKAdmin` for your model.
-3. ???
-4. Profit!
+1. Use `GenericFKAdmin` instead of `ModelAdmin` in your admin code.
+2. ???
+3. Profit!
 
 e.g. in your `admin.py`
 
@@ -37,7 +36,7 @@ class PetAdmin(GenericFKAdmin):
     pass
 ```
 
-![example](docs/screenshots/example_base_admin.png)
+![](docs/source/example_gfk_admin.png)
 
 #### Providing a `filter_callback`
 
@@ -61,7 +60,7 @@ class MarketingMaterialAdmin(GenericFKAdmin):
 
 Now when loading an existing `MarketingMaterial`, the `content_object` options
 are filtered by the chosen `Customer`
-![example](docs/screenshots/example_filter_admin.png)
+![](docs/source/advanced_usage/example_filter_admin.png)
 
 #### Using GFK Resolved Values
 
@@ -84,5 +83,6 @@ class GenreAdminForm(GenericFKModelForm):
             raise ValidationError({media_generic_field: "media name must be lowercase"})
         return self.cleaned_data
 ```
+![](docs/source/advanced_usage/example_access_in_clean.png)
 
 A complete example django app exists in this repository at [here](/example)
