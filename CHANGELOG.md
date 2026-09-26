@@ -1,3 +1,14 @@
+# 0.3.3 `2026-09-26`
+
+Just a documentation update
+
+## What's Changed
+* add sphinx docs by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/41
+* add readthedocs config by @mikespallino in https://github.com/mikespallino/django-genericfkadmin/pull/42
+
+
+**Full Changelog**: https://github.com/mikespallino/django-genericfkadmin/compare/v0.3.2...v0.3.3
+
 # 0.3.2 `2026-09-24`
 
 

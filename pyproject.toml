@@ -1,6 +1,6 @@
 [project]
 name = "django-genfkadmin"
-version = "0.3.2"
+version = "0.3.3"
 description = "No frills GenericForeignKeys for your Django Admin"
 readme = "README.md"
 authors = [
@@ -37,6 +37,7 @@ Homepage = "https://github.com/mikespallino/django-genericfkadmin"
 Issues = "https://github.com/mikespallino/django-genericfkadmin/issues"
 Source = "https://github.com/mikespallino/django-genericfkadmin"
 Changelog = "https://github.com/mikespallino/django-genericfkadmin/blob/main/CHANGELOG.md"
+Documentation = "https://django-genericfkadmin.readthedocs.io/en/latest/index.html"
 
 [tool.isort]
 profile = "black"
